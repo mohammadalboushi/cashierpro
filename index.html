@@ -1,0 +1,2995 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
+<meta name="theme-color" content="#1d4ed8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="الفواتير">
+<meta name="description" content="نظام نقاط البيع والفواتير لمحل مستلزمات المطاعم والمقاهي">
+<title>نظام الفواتير والمبيعات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#1d4ed8;
+  --blue-700:#1e40af;
+  --blue-50:#eff4ff;
+  --blue-100:#dbe6ff;
+  --ink:#0f172a;
+  --ink-2:#334155;
+  --muted:#64748b;
+  --muted-2:#94a3b8;
+  --line:#e4ebf5;
+  --bg:#f5f8fd;
+  --white:#fff;
+  --danger:#dc2626;
+  --danger-bg:#fef2f2;
+  --ok:#0f9d58;
+  --r:16px;
+  --shadow:0 1px 2px rgba(15,23,42,.04), 0 10px 28px -12px rgba(15,23,42,.14);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  font-family:'Tajawal','Segoe UI',Tahoma,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  direction:rtl;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+button,input,select,textarea{font-family:inherit}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;letter-spacing:0}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- Layout ---------- */
+.shell{max-width:860px;margin:0 auto;padding:0 16px 80px}
+.screen-enter{min-height:100vh}
+@keyframes fadeUp{from{opacity:0}to{opacity:1}}
+
+/* ---------- Topbar ---------- */
+.topbar{display:flex;align-items:center;gap:12px;padding:16px 0 12px}
+.brand{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.logo{
+  width:46px;height:46px;border-radius:14px;flex:0 0 auto;
+  background:linear-gradient(145deg,#2b5cf0,#1a3fc4);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:21px;font-weight:800;overflow:hidden;
+  box-shadow:0 6px 16px -6px rgba(29,78,216,.7);
+}
+.logo img{width:100%;height:100%;object-fit:cover}
+.shop-name{font-size:17px;font-weight:800;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shop-date{font-size:12.5px;color:var(--muted);margin-top:2px}
+.topbar-title{flex:1;min-width:0;text-align:center}
+.tt-main{font-size:16px;font-weight:800}
+.tt-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 18px;border-radius:13px;border:none;
+  font-size:15px;font-weight:700;cursor:pointer;line-height:1;
+  transition:background .15s,transform .08s,box-shadow .15s,opacity .15s;
+  user-select:none;white-space:nowrap;
+}
+.btn:active{transform:scale(.975)}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 6px 18px -8px rgba(29,78,216,.9)}
+.btn-primary:hover{background:var(--blue-700)}
+.btn-soft{background:var(--blue-50);color:var(--blue)}
+.btn-soft:hover{background:var(--blue-100)}
+.btn-ghost{background:#fff;color:var(--ink-2);border:1.5px solid var(--line)}
+.btn-ghost:hover{background:#f8fafc}
+.btn-danger{background:var(--danger-bg);color:var(--danger)}
+.btn-block{width:100%}
+.btn svg{width:18px;height:18px;flex:0 0 auto}
+
+.icon-btn{
+  width:42px;height:42px;border-radius:13px;border:1.5px solid var(--line);
+  background:#fff;display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--ink-2);flex:0 0 auto;transition:background .15s,transform .08s;
+}
+.icon-btn:active{transform:scale(.94)}
+.icon-btn:hover{background:#f8fafc}
+.icon-btn svg{width:20px;height:20px}
+.icon-btn.danger{color:var(--danger);border-color:#fee2e2;background:var(--danger-bg)}
+
+/* ---------- Cards ---------- */
+.card{
+  background:#fff;border-radius:var(--r);border:1px solid var(--line);
+  box-shadow:var(--shadow);padding:16px;margin-bottom:14px;
+}
+.field-label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px}
+.input{
+  width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;
+  font-size:16px;background:#fff;color:var(--ink);outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.input::placeholder{color:var(--muted-2)}
+.input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,78,216,.10)}
+.input.invalid{border-color:var(--danger);box-shadow:0 0 0 3px rgba(220,38,38,.08)}
+select.input{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:left 14px center;padding-left:38px}
+.row{display:flex;gap:10px;margin-top:10px}
+.row>*{flex:1;min-width:0}
+
+/* ---------- Home summary ---------- */
+.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.s-card{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:12px 12px 13px;box-shadow:var(--shadow);
+}
+.s-label{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-val{font-size:clamp(14px,4vw,19px);font-weight:800;line-height:1.15;word-break:break-word}
+.s-val.blue{color:var(--blue)}
+.s-sub{font-size:11px;color:var(--muted-2);margin-top:3px}
+
+/* ---------- Home actions ---------- */
+.home-actions{display:flex;flex-direction:column;gap:12px}
+.big-action{
+  display:flex;align-items:center;gap:14px;width:100%;text-align:right;
+  background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 18px;
+  cursor:pointer;box-shadow:var(--shadow);transition:transform .08s,box-shadow .2s,border-color .2s;
+}
+.big-action:active{transform:scale(.985)}
+.big-action:hover{border-color:var(--blue-100)}
+.big-action.primary{
+  background:linear-gradient(135deg,#2455e6,#1a3fc4);
+  border-color:transparent;color:#fff;
+  box-shadow:0 14px 34px -14px rgba(29,78,216,.85);
+}
+.ba-icon{
+  width:50px;height:50px;border-radius:15px;display:flex;align-items:center;justify-content:center;
+  background:var(--blue-50);color:var(--blue);flex:0 0 auto;
+}
+.big-action.primary .ba-icon{background:rgba(255,255,255,.18);color:#fff}
+.ba-icon svg{width:24px;height:24px}
+.ba-text{flex:1;min-width:0}
+.ba-title{display:block;font-size:16.5px;font-weight:800}
+.ba-sub{display:block;font-size:12.5px;color:var(--muted);margin-top:5px}
+.big-action.primary .ba-sub{color:rgba(255,255,255,.78)}
+.ba-arrow{color:var(--muted-2);flex:0 0 auto}
+.big-action.primary .ba-arrow{color:rgba(255,255,255,.8)}
+.ba-arrow svg{width:20px;height:20px}
+
+/* ---------- Section head ---------- */
+.section-head{display:flex;align-items:center;gap:10px;margin:18px 2px 10px}
+.section-head h2{font-size:15px;font-weight:800;margin:0}
+.count-badge{
+  background:var(--blue-50);color:var(--blue);font-size:12px;font-weight:800;
+  padding:2px 9px;border-radius:20px;min-width:24px;text-align:center;
+}
+
+/* ---------- Search ---------- */
+.search-card{position:relative;z-index:20}
+.search-wrap{position:relative}
+.search-wrap>svg{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  width:19px;height:19px;color:var(--muted-2);pointer-events:none;
+}
+.search-input{padding-right:44px; padding-left:44px}
+.grid-btn{
+  position:absolute; left:6px; top:50%; transform:translateY(-50%);
+  background:transparent; border:none; color:var(--blue);
+  width:34px; height:34px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  transition:background .15s;
+}
+.grid-btn:hover{background:var(--blue-50)}
+.grid-btn:active{background:var(--blue-100)}
+.grid-btn svg{width:20px; height:20px}
+.search-results{
+  display:none;margin-top:8px;border:1px solid var(--line);border-radius:14px;
+  background:#fff;overflow-y:auto;overflow-x:hidden;max-height:280px;box-shadow:0 16px 40px -18px rgba(15,23,42,.35);
+}
+.search-results.open{display:block}
+.search-results.open + .quick-add-btn{display:none}
+.search-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  width:100%;padding:13px 15px;background:#fff;border:none;border-bottom:1px solid #f1f5f9;
+  cursor:pointer;text-align:right;font-size:15px;transition:background .12s;
+}
+.search-item:last-child{border-bottom:none}
+.search-item:hover{background:var(--blue-50)}
+.search-item:active{background:var(--blue-100)}
+.si-name{font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.si-price{font-size:13.5px;color:var(--blue);font-weight:800;flex:0 0 auto}
+.search-item.new .si-name{color:var(--blue);font-weight:700}
+.quick-add-btn{
+  margin-top:10px;width:100%;padding:11px;border-radius:12px;border:1.5px dashed var(--blue-100);
+  background:#fbfdff;color:var(--blue);font-weight:700;font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.quick-add-btn:hover{background:var(--blue-50)}
+.quick-add-btn svg{width:17px;height:17px}
+
+/* ---------- Items ---------- */
+.items-list{display:flex;flex-direction:column;gap:10px}
+.item-row{
+  background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;
+  box-shadow:0 1px 2px rgba(15,23,42,.03);animation:fadeUp .18s ease both;
+}
+.item-top{display:flex;align-items:center;gap:8px}
+.item-name{
+  flex:1;min-width:0;border:none;background:transparent;font-size:15.5px;font-weight:700;
+  color:var(--ink);padding:4px 2px;outline:none;border-radius:8px;
+}
+.item-name:focus{background:var(--blue-50)}
+.item-name::placeholder{color:var(--muted-2);font-weight:500}
+.item-bottom{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.qty-ctrl{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:11px;overflow:hidden;background:#fff}
+.qty-btn{
+  width:36px;height:38px;border:none;background:#fff;color:var(--blue);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.qty-btn:hover{background:var(--blue-50)}
+.qty-btn:active{background:var(--blue-100)}
+.qty-btn svg{width:16px;height:16px}
+.qty-input{
+  width:52px;height:38px;border:none;border-right:1.5px solid var(--line);border-left:1.5px solid var(--line);
+  text-align:center;font-size:15px;font-weight:800;outline:none;background:#fff;color:var(--ink);
+  -moz-appearance:textfield;
+}
+.qty-input::-webkit-outer-spin-button,.qty-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.times{color:var(--muted-2);font-size:14px;font-weight:700}
+.price-wrap{position:relative;flex:1;min-width:110px}
+.price-input{
+  width:100%;height:38px;border:1.5px solid var(--line);border-radius:11px;
+  padding:0 12px 0 38px;font-size:15px;font-weight:700;outline:none;background:#fff;color:var(--ink);
+  -moz-appearance:textfield;
+}
+.price-input::-webkit-outer-spin-button,.price-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.price-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,78,216,.10)}
+.cur{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:11.5px;color:var(--muted-2);font-weight:700;pointer-events:none}
+.line-total{
+  font-size:15.5px;font-weight:800;color:var(--blue);min-width:90px;text-align:left;
+  flex:0 0 auto; cursor:pointer; padding:4px 8px; border-radius:8px; border:1px dashed transparent; transition:all 0.15s;
+}
+.line-total:hover{ background:var(--blue-50); border-color:var(--blue-100); }
+.line-total:active{ transform:scale(0.95); }
+.save-prod-chip{
+  margin-top:9px;background:var(--blue-50);color:var(--blue);border:none;border-radius:9px;
+  padding:6px 11px;font-size:12.5px;font-weight:700;cursor:pointer;
+}
+.save-prod-chip:hover{background:var(--blue-100)}
+.saved-chip{
+  display:inline-block;margin-top:9px;background:#f0fdf4;color:#15803d;border-radius:9px;
+  padding:6px 11px;font-size:12.5px;font-weight:700;
+}
+.empty{
+  text-align:center;padding:26px 16px;color:var(--muted-2);font-size:14px;
+  background:#fff;border:1.5px dashed var(--line);border-radius:14px;
+}
+.empty b{color:var(--muted);display:block;margin-bottom:4px;font-size:14.5px}
+
+/* ---------- Bottom bar (invoice) ---------- */
+.invoice-shell{padding-bottom:140px}
+.bottom-bar{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:50;
+  background:rgba(255, 255, 255, 0.97);
+  backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);
+  box-shadow:0 -8px 30px -14px rgba(15, 23, 42, 0.25);
+  padding:10px 16px;
+  margin:0;
+  max-width:none;
+  width:100%;
+  border-radius:0;
+}
+.bb-inner{max-width:860px;margin:0 auto}
+.bb-totals{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px}
+.bb-lbp{font-size:20px;font-weight:800;color:var(--ink);line-height:1}
+.bb-lbp small{font-size:12.5px;font-weight:700;color:var(--muted);margin-right:4px}
+.bb-usd{font-size:14px;font-weight:800;color:var(--blue);white-space:nowrap}
+.bb-rate{font-size:11px;color:var(--muted-2);font-weight:600;margin-top:3px}
+.bb-btns{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:8px}
+.bb-btns .btn{padding:12px 8px;font-size:14px;border-radius:12px}
+
+.banner{
+  background:#fffbeb;border:1px solid #fde68a;color:#92400e;
+  border-radius:12px;padding:10px 14px;font-size:13px;font-weight:700;margin-bottom:12px;
+}
+
+/* ---------- History ---------- */
+.hist-card{
+  background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px;
+  box-shadow:var(--shadow);margin-bottom:10px;animation:fadeUp .18s ease both;
+}
+.hist-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.hist-num{font-size:15px;font-weight:800;color:var(--blue)}
+.hist-date{font-size:12px;color:var(--muted)}
+.hist-cust{font-size:13.5px;color:var(--ink-2);font-weight:600;margin-bottom:8px}
+.hist-totals{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding-top:9px;border-top:1px dashed var(--line)}
+.hist-lbp{font-size:16px;font-weight:800}
+.hist-usd{font-size:13.5px;font-weight:800;color:var(--blue)}
+.hist-actions{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
+.hist-actions .btn{padding:8px 13px;font-size:12.5px;border-radius:10px;flex:1;min-width:72px}
+.hist-actions .btn svg{width:15px;height:15px}
+
+/* ---------- Products ---------- */
+.prod-row{
+  display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);
+  border-radius:14px;padding:12px 14px;margin-bottom:9px;box-shadow:0 1px 2px rgba(15,23,42,.03);
+  animation:fadeUp .16s ease both;
+}
+.prod-info{flex:1;min-width:0}
+.prod-name{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prod-price{font-size:13px;color:var(--blue);font-weight:800;margin-top:3px}
+.prod-actions{display:flex;gap:7px;flex:0 0 auto}
+.prod-actions .icon-btn{width:38px;height:38px;border-radius:11px}
+.prod-actions .icon-btn svg{width:17px;height:17px}
+
+/* ---------- Settings ---------- */
+.settings-group{margin-bottom:8px}
+.settings-group .card{padding:16px}
+.rate-row{display:flex;align-items:center;gap:10px;margin-top:10px}
+.rate-preview{
+  background:var(--blue-50);border-radius:12px;padding:12px 14px;margin-top:12px;
+  font-size:13.5px;color:var(--ink-2);line-height:1.7;
+}
+.rate-preview b{color:var(--blue);font-weight:800}
+.divider{height:1px;background:var(--line);margin:14px 0}
+
+/* ---------- Modal ---------- */
+#modalRoot{position:fixed;inset:0;z-index:100;display:none}
+#modalRoot.open{display:flex;align-items:center;justify-content:center;padding:14px}
+.modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(3px);animation:fadeIn .18s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  position:relative;background:#fff;border-radius:20px;width:100%;max-width:520px;
+  max-height:92vh;overflow:auto;box-shadow:0 30px 80px -20px rgba(15,23,42,.55);
+  animation:modalIn .22s cubic-bezier(.2,.9,.3,1.1);
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+.modal.wide{max-width:660px}
+.modal.sm{max-width:400px}
+.modal.full{position:fixed;inset:0;max-width:none;max-height:none;width:100%;height:100%;border-radius:0;background:#fff;box-shadow:none;display:flex;flex-direction:column;z-index:110}
+.modal.full .modal-head{border-radius:0}
+.modal.full .preview-scroll{flex:1;max-height:none}
+.modal-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:16px 18px 12px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2;
+  border-radius:20px 20px 0 0;
+}
+.modal-head h3{margin:0;font-size:16px;font-weight:800}
+.modal-body{padding:16px 18px}
+.modal-actions{display:flex;gap:9px;padding:14px 18px calc(16px + env(safe-area-inset-bottom));flex-wrap:wrap}
+.modal-actions .btn{flex:1;min-width:120px}
+.confirm-box{padding:22px 20px 4px}
+.confirm-box h3{margin:0 0 8px;font-size:17px;font-weight:800}
+.confirm-box p{margin:0 0 16px;color:var(--muted);font-size:14px;line-height:1.7}
+.preview-scroll{
+  padding:14px;background:#f1f5f9;max-height:65vh;overflow-y:auto;overflow-x:hidden;
+  display:flex;justify-content:center;align-items:flex-start;
+}
+.preview-img{
+  width:100%;max-width:680px;height:auto;display:block;
+  border-radius:10px;box-shadow:0 8px 28px -10px rgba(15,23,42,.35);background:#fff;
+}
+
+/* ---------- Toast ---------- */
+#toastRoot{
+  position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  z-index:300;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:calc(100% - 32px);max-width:420px;
+}
+.toast{
+  background:#0f172a;color:#fff;padding:12px 18px;border-radius:13px;font-size:13.5px;font-weight:700;
+  box-shadow:0 14px 34px -12px rgba(15,23,42,.7);animation:toastIn .25s ease both;
+  display:flex;align-items:center;gap:9px;max-width:100%;
+}
+.toast.ok{background:#065f46}
+.toast.err{background:#991b1b}
+.toast svg{width:17px;height:17px;flex:0 0 auto}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.toast.out{animation:toastOut .22s ease forwards}
+@keyframes toastOut{to{opacity:0;transform:translateY(8px)}}
+
+/* ---------- Misc ---------- */
+.hint{font-size:12.5px;color:var(--muted-2);line-height:1.6;margin-top:8px}
+.link-btn{background:none;border:none;color:var(--blue);font-weight:700;font-size:13px;cursor:pointer;padding:4px}
+.spacer{height:8px}
+@media (max-width:400px){
+  .bb-btns{grid-template-columns:1.3fr 1fr 1fr}
+  .bb-btns .btn{font-size:13px;padding:11px 6px}
+  .bb-lbp{font-size:18px}
+  .line-total{min-width:78px;font-size:14.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div id="view"></div>
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ==========================================================================
+   1. CONSTANTS & HELPERS
+   ========================================================================== */
+const STORAGE_KEY = 'smartpos.lb.v1';
+const BACKUP_VERSION = 1;
+
+const AR_DAYS = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const CATEGORIES = ['أكياس','محارم','صحون وأكواب','مواد تنظيف','أدوات مطاعم','مواد تغليف','أصناف متنوعة'];
+
+const ICONS = {
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>',
+  chevron:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  minus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+  share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>',
+  download:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>',
+  print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>',
+  close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  receipt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2h16v20l-3-2-3 2-3-2-3 2-4-2z"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>',
+  box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>',
+  plusCircle:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+  warning:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+  users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  wallet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>',
+  dots:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>',
+  grid9:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="5" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/></svg>'
+};
+
+const $  = (sel, root) => (root||document).querySelector(sel);
+const $$ = (sel, root) => Array.prototype.slice.call((root||document).querySelectorAll(sel));
+
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+const nf0 = new Intl.NumberFormat('en-US', {maximumFractionDigits:0});
+const nf2 = new Intl.NumberFormat('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+function r2(n){ n = Number(n); if(!isFinite(n)) return 0; return Math.round((n + Number.EPSILON) * 100) / 100; }
+function fmtLBP(n){ return nf0.format(Math.round(Number(n)||0)); }
+function fmtUSD(n){ return nf2.format(Number(n)||0); }
+function moneyLBP(n){ return fmtLBP(n) + ' ل.ل'; }
+function moneyUSD(n){ return fmtUSD(n) + ' $'; }
+
+/** تحويل مدخلات رقمية (تدعم الأرقام العربية والفارسية والفواصل) */
+function parseNum(v){
+  if(typeof v === 'number') return isFinite(v) ? v : NaN;
+  if(v == null) return NaN;
+  let s = String(v).trim();
+  s = s.replace(/[\u0660-\u0669]/g, d => String(d.charCodeAt(0) - 0x0660));
+  s = s.replace(/[\u06F0-\u06F9]/g, d => String(d.charCodeAt(0) - 0x06F0));
+  s = s.replace(/[,٬\s]/g, '');
+  s = s.replace(/[^\d.\-]/g, '');
+  if(s === '' || s === '-' || s === '.') return NaN;
+  const n = parseFloat(s);
+  return isFinite(n) ? n : NaN;
+}
+
+function pad2(n){ return String(n).padStart(2,'0'); }
+function fmtDate(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return '—';
+  return pad2(d.getDate()) + '/' + pad2(d.getMonth()+1) + '/' + d.getFullYear();
+}
+function fmtTime(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return '—';
+  let h = d.getHours(); const m = pad2(d.getMinutes());
+  const ap = h >= 12 ? 'م' : 'ص';
+  h = h % 12 || 12;
+  return h + ':' + m + ' ' + ap;
+}
+function dayName(iso){ const d = new Date(iso); return isNaN(d) ? '' : AR_DAYS[d.getDay()]; }
+function isoDay(v){
+  const d = new Date(v);
+  if(isNaN(d)) return '';
+  return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate());
+}
+function todayLong(){
+  const d = new Date();
+  return AR_DAYS[d.getDay()] + '، ' + pad2(d.getDate()) + '/' + pad2(d.getMonth()+1) + '/' + d.getFullYear();
+}
+
+/* ==========================================================================
+   2. STATE & IndexedDB
+   ========================================================================== */
+function defaultState(){
+  return {
+    settings: { shopName:'محل مستلزمات المطاعم', phone:'', logo:'', rate: 90000 },
+    products: [],
+    invoices: [],
+    customers: [],
+    counter: 1000
+  };
+}
+
+function normalizeState(s){
+  const d = defaultState();
+  if(!s || typeof s !== 'object') return d;
+  
+  let invoices = Array.isArray(s.invoices) ? s.invoices.filter(inv => inv && Array.isArray(inv.items)).map(normalizeInvoice) : [];
+  
+  let customers = Array.isArray(s.customers) ? s.customers.filter(c => c && typeof c.name === 'string' && c.name.trim()).map(c => ({
+    id: c.id || uid(),
+    name: String(c.name).trim(),
+    phone: c.phone || ''
+  })) : [];
+
+  // كود ترميم ذكي: استرجاع الزبائن المفقودين من الفواتير المحفوظة
+  if(customers.length === 0 && invoices.length > 0) {
+    const cMap = {};
+    invoices.forEach(inv => {
+      if(inv.customerId && inv.customer && !cMap[inv.customerId]){
+        cMap[inv.customerId] = { id: inv.customerId, name: inv.customer, phone: '' };
+      }
+    });
+    customers = Object.values(cMap);
+  }
+
+  const out = {
+    settings: {
+      shopName: (s.settings && typeof s.settings.shopName === 'string' && s.settings.shopName.trim()) || d.settings.shopName,
+      phone: (s.settings && typeof s.settings.phone === 'string') ? s.settings.phone : '',
+      logo: (s.settings && typeof s.settings.logo === 'string') ? s.settings.logo : '',
+      rate: (s.settings && isFinite(Number(s.settings.rate)) && Number(s.settings.rate) > 0) ? Number(s.settings.rate) : d.settings.rate
+    },
+    products: Array.isArray(s.products) ? s.products.filter(p => p && typeof p.name === 'string' && p.name.trim()).map(p => ({
+      id: p.id || uid(),
+      name: String(p.name).trim(),
+      price: Math.max(0, Number(p.price) || 0),
+      category: typeof p.category === 'string' ? p.category : ''
+    })) : [],
+    customers: customers,
+    invoices: invoices,
+    counter: isFinite(Number(s.counter)) ? Number(s.counter) : d.counter
+  };
+  return out;
+}
+
+function normalizeInvoice(inv){
+  const items = inv.items.map(it => {
+    const qty = Math.max(0, Number(it.qty) || 0);
+    const price = Math.max(0, Number(it.price) || 0);
+    return {
+      productId: it.productId || null,
+      name: String(it.name || 'صنف').trim() || 'صنف',
+      qty: qty,
+      price: price,
+      total: Math.round(qty * price)
+    };
+  });
+  const totalLBP = items.reduce((a,b) => a + b.total, 0);
+  const rate = Number(inv.rate) > 0 ? Number(inv.rate) : 1;
+  return {
+    id: inv.id || uid(),
+    number: Number(inv.number) || 0,
+    date: inv.date || new Date().toISOString(),
+    customer: typeof inv.customer === 'string' ? inv.customer : '',
+    customerId: inv.customerId || null, 
+    items: items,
+    totalLBP: totalLBP,
+    rate: rate,
+    totalUSD: r2(totalLBP / rate),
+    updatedAt: inv.updatedAt || null
+  };
+}
+
+let state = defaultState();
+let draft = null;
+let screen = 'home';
+let previewState = null;
+let confirmResolve = null;
+let ui = { productsSearch:'', histSearch:'', histFrom:'', histTo:'' };
+let db = null;
+
+// تهيئة IndexedDB
+function initDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('SmartPOS_DB', 1);
+    
+    request.onupgradeneeded = function(e) {
+      const database = e.target.result;
+      if (!database.objectStoreNames.contains('store')) {
+        database.createObjectStore('store', { keyPath: 'id' });
+      }
+    };
+    
+    request.onsuccess = function(e) {
+      db = e.target.result;
+      loadStateFromDB().then(loadedState => {
+        if (loadedState) {
+          state = normalizeState(loadedState);
+        } else {
+          // محاولة استرجاع البيانات القديمة من localStorage إن وجدت لمرة واحدة
+          const oldData = localStorage.getItem(STORAGE_KEY);
+          if (oldData) {
+            state = normalizeState(JSON.parse(oldData));
+            saveState(); // حفظها فوراً في IndexedDB
+            console.log("Migrated data from localStorage to IndexedDB");
+          }
+        }
+        resolve();
+      });
+    };
+    
+    request.onerror = function(e) {
+      console.error("IndexedDB error:", e);
+      // في حال فشل IndexedDB (نادر جداً)، نعود لـ localStorage كخطة بديلة
+      const oldData = localStorage.getItem(STORAGE_KEY);
+      if (oldData) state = normalizeState(JSON.parse(oldData));
+      resolve(); 
+    };
+  });
+}
+
+function loadStateFromDB() {
+  return new Promise((resolve) => {
+    if (!db) return resolve(null);
+    const tx = db.transaction('store', 'readonly');
+    const store = tx.objectStore('store');
+    const request = store.get('app_state');
+    
+    request.onsuccess = function() {
+      resolve(request.result ? request.result.data : null);
+    };
+    request.onerror = function() {
+      resolve(null);
+    };
+  });
+}
+
+function saveState(){
+  if (!db) {
+    // خطة بديلة إذا لم تعمل IndexedDB
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); return true; } 
+    catch(e) { toast('تعذّر حفظ البيانات.', 'err'); return false; }
+  }
+  
+  try {
+    const tx = db.transaction('store', 'readwrite');
+    const store = tx.objectStore('store');
+    store.put({ id: 'app_state', data: state });
+    return true;
+  } catch(e){
+    console.error('save error', e);
+    toast('تعذّر حفظ البيانات.', 'err', 4500);
+    return false;
+  }
+}
+
+/* ==========================================================================
+   3. TOASTS & MODALS
+   ========================================================================== */
+function toast(msg, type, ms){
+  const root = $('#toastRoot');
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type === 'err' ? 'err' : type === 'ok' ? 'ok' : '');
+  el.innerHTML = (type === 'err' ? ICONS.warning : ICONS.check) + '<span style="line-height:1.6">' + esc(msg).replace(/\n/g, '<br>') + '</span>';
+  root.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 240);
+  }, ms || 2400);
+}
+
+function showModal(html, size){
+  const root = $('#modalRoot');
+  root.innerHTML = '<div class="modal-backdrop" data-action="modal-backdrop"></div>' +
+                   '<div class="modal ' + (size || '') + '">' + html + '</div>';
+  root.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // تسجيل خطوة في المتصفح ليعمل زر الرجوع كزر إغلاق
+  try { history.pushState({ modal: true, screen: screen }, '', '#modal'); } catch(e){}
+}
+function closeModal(fromPop){
+  const root = $('#modalRoot');
+  if(!root || !root.classList.contains('open')) return;
+  root.classList.remove('open');
+  root.innerHTML = '';
+  document.body.style.overflow = '';
+  previewState = null;
+  // إذا المستخدم سكرها من زر الـ X (وليس من زر الرجوع)، منرجع خطوة برمجياً لننظف السجل
+  if(!fromPop){
+    history.back();
+  }
+}
+function confirmDialog(title, msg, okText, cancelText, danger){
+  return new Promise(resolve => {
+    confirmResolve = resolve;
+    showModal(
+      '<div class="confirm-box">' +
+        '<h3>' + esc(title) + '</h3>' +
+        '<p>' + esc(msg) + '</p>' +
+      '</div>' +
+      '<div class="modal-actions">' +
+        '<button class="btn ' + (danger === false ? 'btn-primary' : 'btn-danger') + '" data-action="confirm-yes">' + esc(okText || 'تأكيد') + '</button>' +
+        '<button class="btn btn-ghost" data-action="confirm-no">' + esc(cancelText || 'رجوع') + '</button>' +
+      '</div>', 'sm');
+  });
+}
+function resolveConfirm(val){
+  const r = confirmResolve;
+  confirmResolve = null;
+  closeModal();
+  if(r) r(val);
+}
+
+/* ==========================================================================
+   4. ROUTING
+   ========================================================================== */
+function go(name, fromPop){
+  if(name === 'invoice' && !draft){ startDraft(); }
+  screen = name;
+  render();
+  window.scrollTo(0,0);
+  if(!fromPop){
+    try { history.pushState({ screen: name }, '', '#' + name); } catch(e){}
+  }
+}
+
+function goBack(){
+  if(window.history.length > 1){
+    window.history.back();
+  } else {
+    go('home');
+  }
+}
+
+window.addEventListener('popstate', function(e){
+  // 1. فحص إذا كانت قائمة الأصناف (البحث أو النقاط التسع) مفتوحة
+  const searchBox = $('#searchResults');
+  if(searchBox && searchBox.classList.contains('open')){
+    searchBox.classList.remove('open');
+    // سحب التركيز من مربع البحث لإغلاق الكيبورد إذا كان مفتوحاً
+    const activeInp = document.activeElement;
+    if(activeInp && activeInp.tagName === 'INPUT') activeInp.blur();
+    // إحباط الخروج من الشاشة وإبقاء المستخدم داخل الفاتورة
+    try { history.pushState({ screen: 'invoice' }, '', '#invoice'); } catch(err){}
+    return;
+  }
+
+  // 2. فحص إذا في نافذة منبثقة مفتوحة (معاينة أو رسالة تأكيد)
+  const modalRoot = $('#modalRoot');
+  if(modalRoot && modalRoot.classList.contains('open')){
+    // إحباط أي رسالة تأكيد معلقة
+    if(confirmResolve){
+      const r = confirmResolve;
+      confirmResolve = null;
+      r(false);
+    }
+    // إغلاق النافذة وتمرير true لعدم العودة في السجل مرة أخرى
+    closeModal(true);
+    // إيقاف التنفيذ هنا حتى لا يتم إعادة تحميل الشاشة الخلفية وفقدان البيانات المكتوبة
+    return;
+  }
+
+  // 3. التنقل الطبيعي بين الشاشات
+  const s = (e.state && e.state.screen) || 'home';
+  screen = (s === 'invoice' && !draft) ? 'home' : s;
+  render();
+});
+
+function render(){
+  const view = $('#view');
+  let html = '';
+  if(screen === 'home') html = homeHTML();
+  else if(screen === 'invoice') html = invoiceHTML();
+  else if(screen === 'history') html = historyHTML();
+  else if(screen === 'products') html = productsHTML();
+  else if(screen === 'settings') html = settingsHTML();
+  else if(screen === 'customers') html = customersHTML();
+  else if(screen === 'debts') html = debtsHTML();
+  else html = homeHTML();
+  view.innerHTML = '<div class="screen-enter">' + html + '</div>';
+  afterRender();
+}
+
+function afterRender(){
+  if(screen === 'invoice'){
+    renderItems();
+    updateTotalBar();
+  }
+  if(screen === 'products'){
+    renderProductsList();
+  }
+  if(screen === 'history'){
+    renderHistoryList();
+  }
+  if(screen === 'customers'){
+    renderCustomersList();
+  }
+  if(screen === 'debts'){
+    renderDebtsList();
+  }
+}
+
+/* ==========================================================================
+   5. HOME SCREEN
+   ========================================================================== */
+function todayStats(){
+  const key = isoDay(new Date());
+  let lbp = 0, usd = 0, count = 0;
+  state.invoices.forEach(inv => {
+    if(isoDay(inv.date) === key){ lbp += inv.totalLBP; usd += inv.totalUSD; count++; }
+  });
+  return { lbp: lbp, usd: r2(usd), count: count };
+}
+
+function logoHTML(size){
+  if(state.settings.logo){
+    return '<div class="logo" style="' + (size ? 'width:'+size+'px;height:'+size+'px;' : '') + '"><img src="' + esc(state.settings.logo) + '" alt=""></div>';
+  }
+  const letter = (state.settings.shopName || 'م').trim().charAt(0);
+  return '<div class="logo" style="' + (size ? 'width:'+size+'px;height:'+size+'px;' : '') + '">' + esc(letter) + '</div>';
+}
+
+function homeHTML(){
+  const st = todayStats();
+  const hasDraft = draft && draft.items.length > 0;
+  return '' +
+  '<div class="shell">' +
+    '<header class="topbar">' +
+      '<div class="brand">' +
+        logoHTML(0) +
+        '<div style="min-width:0">' +
+          '<div class="shop-name">' + esc(state.settings.shopName) + '</div>' +
+          '<div class="shop-date">' + esc(todayLong()) + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<button class="icon-btn" data-action="go" data-screen="settings" aria-label="الإعدادات">' + ICONS.gear + '</button>' +
+    '</header>' +
+
+    '<div class="summary">' +
+      '<div class="s-card">' +
+        '<div class="s-label">مبيعات اليوم</div>' +
+        '<div class="s-val">' + fmtLBP(st.lbp) + '</div>' +
+        '<div class="s-sub">ليرة لبنانية</div>' +
+      '</div>' +
+      '<div class="s-card">' +
+        '<div class="s-label">بالدولار</div>' +
+        '<div class="s-val blue">' + fmtUSD(st.usd) + '</div>' +
+        '<div class="s-sub">دولار أميركي</div>' +
+      '</div>' +
+      '<div class="s-card">' +
+        '<div class="s-label">عدد الفواتير</div>' +
+        '<div class="s-val">' + st.count + '</div>' +
+        '<div class="s-sub">فاتورة اليوم</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="home-actions">' +
+      '<button class="big-action primary" data-action="new-invoice">' +
+        '<span class="ba-icon">' + ICONS.plusCircle + '</span>' +
+        '<span class="ba-text">' +
+          '<span class="ba-title">فاتورة جديدة</span>' +
+          '<span class="ba-sub">' + (hasDraft ? 'لديك فاتورة غير محفوظة — اضغط للمتابعة' : 'ابدأ تسجيل عملية بيع') + '</span>' +
+        '</span>' +
+        '<span class="ba-arrow">' + ICONS.chevron + '</span>' +
+      '</button>' +
+
+      '<button class="big-action" data-action="go" data-screen="history">' +
+        '<span class="ba-icon">' + ICONS.receipt + '</span>' +
+        '<span class="ba-text">' +
+          '<span class="ba-title">سجل الفواتير</span>' +
+          '<span class="ba-sub">' + state.invoices.length + ' فاتورة محفوظة</span>' +
+        '</span>' +
+        '<span class="ba-arrow">' + ICONS.chevron + '</span>' +
+      '</button>' +
+
+      '<button class="big-action" data-action="go" data-screen="products">' +
+        '<span class="ba-icon">' + ICONS.box + '</span>' +
+        '<span class="ba-text">' +
+          '<span class="ba-title">الأصناف</span>' +
+          '<span class="ba-sub">' + state.products.length + ' صنفاً محفوظاً</span>' +
+        '</span>' +
+        '<span class="ba-arrow">' + ICONS.chevron + '</span>' +
+      '</button>' +
+      
+      '<button class="big-action" data-action="go" data-screen="customers">' +
+        '<span class="ba-icon">' + ICONS.users + '</span>' +
+        '<span class="ba-text">' +
+          '<span class="ba-title">إضافة زبون</span>' +
+          '<span class="ba-sub">' + state.customers.length + ' زبون مسجل</span>' +
+        '</span>' +
+        '<span class="ba-arrow">' + ICONS.chevron + '</span>' +
+      '</button>' +
+
+      '<button class="big-action" data-action="go" data-screen="debts">' +
+        '<span class="ba-icon">' + ICONS.wallet + '</span>' +
+        '<span class="ba-text">' +
+          '<span class="ba-title">الديون</span>' +
+          '<span class="ba-sub">متابعة حسابات الزبائن وتفاصيل الفواتير</span>' +
+        '</span>' +
+        '<span class="ba-arrow">' + ICONS.chevron + '</span>' +
+      '</button>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ==========================================================================
+   6. INVOICE SCREEN
+   ========================================================================== */
+function startDraft(){
+  draft = {
+    id: null,
+    number: state.counter + 1,
+    date: new Date().toISOString(),
+    customer: '',
+    items: [],
+    rate: state.settings.rate,
+    totalLBP: 0,
+    totalUSD: 0,
+    editingId: null
+  };
+  // تنظيف حاسبة الباقي إن وجدت
+  const g = $('#givenUSD'); const r = $('#returnUSD');
+  if(g) g.value = ''; if(r) r.value = '';
+}
+
+function newInvoiceFlow(){
+  // إذا في مسودة قيد العمل (فيها أصناف أو اسم زبون أو قيد التعديل)، ادخل عليها للمتابعة فوراً
+  if(draft && (draft.items.length > 0 || draft.customer || draft.editingId)){
+    go('invoice');
+  } else {
+    // إذا ما في مسودة، ابدأ فاتورة جديدة
+    startDraft();
+    go('invoice');
+  }
+}
+
+function invoiceHTML(){
+  if(!draft) startDraft();
+  const it = draft;
+  return '' +
+  '<div class="shell invoice-shell">' +
+    '<header class="topbar">' +
+      '<button class="icon-btn" data-action="go-back" aria-label="رجوع">' + ICONS.back + '</button>' +
+      '<div class="topbar-title">' +
+        '<div class="tt-main">' + (it.editingId ? 'تعديل فاتورة #' + it.number : 'فاتورة جديدة') + '</div>' +
+        '<div class="tt-sub">#' + it.number + ' · ' + fmtDate(it.date) + ' · ' + fmtTime(it.date) + '</div>' +
+      '</div>' +
+      '<div style="width:42px"></div>' +
+    '</header>' +
+
+    (it.editingId
+      ? '<div class="banner">تعديل فاتورة محفوظة — سعر الصرف المثبّت لهذه الفاتورة: ' + fmtLBP(it.rate) + ' ل.ل لكل دولار.</div>'
+      : (it.rate !== state.settings.rate
+          ? '<div class="banner">سعر الصرف الحالي في الإعدادات تغيّر. هذه الفاتورة تستخدم: ' + fmtLBP(it.rate) + ' ل.ل.</div>'
+          : '')) +
+
+    '<div class="card search-card">' +
+      '<label class="field-label" for="productSearch">ابحث عن صنف أو أضف صنفاً جديداً</label>' +
+      '<div class="search-wrap">' + ICONS.search +
+        '<input id="productSearch" class="input search-input" type="text" placeholder="اكتب اسم الصنف..." autocomplete="off">' +
+        '<button class="grid-btn" data-action="show-all-products" title="عرض كل الأصناف">' + ICONS.grid9 + '</button>' +
+      '</div>' +
+      '<div id="searchResults" class="search-results"></div>' +
+      '<button class="quick-add-btn" data-action="quick-add-item">' + ICONS.plus + ' إضافة صنف سريع</button>' +
+    '</div>' +
+
+    '<div class="section-head">' +
+      '<h2>الأصناف</h2>' +
+      '<span class="count-badge" id="itemsCount">' + it.items.length + '</span>' +
+    '</div>' +
+    '<div id="itemsList" class="items-list"></div>' +
+
+    '<div class="card" style="margin-top:16px; background:#f8fafc; border:1.5px dashed #cbd5e1;">' +
+      '<label class="field-label" style="color:var(--blue); font-size:14px; margin-bottom:10px;">حاسبة الباقي (حسب إجمالي الدولار)</label>' +
+      '<div class="row" style="margin-top:0">' +
+        '<div><input id="givenUSD" class="input num" type="number" inputmode="decimal" placeholder="المستلم ($)"></div>' +
+        '<div><input id="returnUSD" class="input num" type="number" inputmode="decimal" placeholder="ترجيع ($)"></div>' +
+        '<div style="flex:0 0 auto"><button class="btn btn-soft" data-action="calc-change" style="height:100%; padding:0 14px; border:1.5px solid var(--blue-100)">احسب</button></div>' +
+      '</div>' +
+    '</div>' +
+
+  '</div>' +
+
+  '<div class="bottom-bar">' +
+    '<div class="bb-inner">' +
+      '<div class="bb-totals">' +
+        '<div>' +
+          '<div class="bb-lbp"><span id="tLBP" class="num">' + fmtLBP(it.totalLBP) + '</span><small>ل.ل</small></div>' +
+          '<div class="bb-rate">سعر الصرف: <span id="tRate" class="num">' + fmtLBP(it.rate) + '</span> ل.ل</div>' +
+        '</div>' +
+        '<div class="bb-usd"><span id="tUSD" class="num">' + fmtUSD(it.totalUSD) + '</span> $</div>' +
+      '</div>' +
+      '<div class="bb-btns">' +
+        '<button class="btn btn-primary" data-action="save-invoice">' + ICONS.check + ' حفظ</button>' +
+        '<button class="btn btn-soft" data-action="preview-invoice">معاينة</button>' +
+        '<button class="btn btn-ghost" data-action="cancel-invoice">إلغاء</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function itemRowHTML(it, idx){
+  return '' +
+  '<div class="item-row" data-idx="' + idx + '">' +
+    '<div class="item-top">' +
+      '<input class="item-name" data-field="name" data-idx="' + idx + '" type="text" value="' + esc(it.name) + '" placeholder="اسم الصنف" autocomplete="off">' +
+      '<button class="icon-btn danger" data-action="del-item" data-idx="' + idx + '" aria-label="حذف الصنف">' + ICONS.trash + '</button>' +
+    '</div>' +
+    '<div class="item-bottom">' +
+      '<div class="qty-ctrl">' +
+        '<button class="qty-btn" data-action="qty-minus" data-idx="' + idx + '" aria-label="إنقاص">' + ICONS.minus + '</button>' +
+        '<input class="qty-input num" data-field="qty" data-idx="' + idx + '" type="number" inputmode="decimal" min="0" step="any" value="' + esc(it.qty) + '">' +
+        '<button class="qty-btn" data-action="qty-plus" data-idx="' + idx + '" aria-label="زيادة">' + ICONS.plus + '</button>' +
+      '</div>' +
+      '<span class="times">×</span>' +
+      '<div class="price-wrap">' +
+        '<input class="price-input num" data-field="price" data-idx="' + idx + '" type="number" inputmode="decimal" min="0" step="any" value="' + esc(it.price) + '">' +
+        '<span class="cur">ل.ل</span>' +
+      '</div>' +
+      '<div class="line-total num" id="lineTotal-' + idx + '" data-action="edit-line-total" data-idx="' + idx + '" title="اضغط لحساب الكمية حسب المبلغ المطلوب">' + fmtLBP(it.total) + '</div>' +
+    '</div>' +
+    (it.productId
+      ? (it._saved ? '<span class="saved-chip">✓ محفوظ في الأصناف</span>' : '')
+      : '<button class="save-prod-chip" data-action="save-to-products" data-idx="' + idx + '">+ حفظ هذا الصنف في قائمة الأصناف</button>') +
+  '</div>';
+}
+
+function renderItems(){
+  const box = $('#itemsList');
+  if(!box || !draft) return;
+  if(!draft.items.length){
+    box.innerHTML = '<div class="empty"><b>لا توجد أصناف بعد</b>ابحث عن صنف من الأعلى، أو أضف صنفاً سريعاً.</div>';
+  } else {
+    box.innerHTML = draft.items.map((it,i) => itemRowHTML(it,i)).join('');
+  }
+  const c = $('#itemsCount');
+  if(c) c.textContent = draft.items.length;
+}
+
+function recalc(){
+  if(!draft) return;
+  let total = 0;
+  draft.items.forEach(it => {
+    const q = Number(it.qty) || 0;
+    const p = Number(it.price) || 0;
+    it.total = Math.round(q * p);
+    total += it.total;
+  });
+  draft.totalLBP = total;
+  const rate = Number(draft.rate) || 0;
+  draft.totalUSD = rate > 0 ? r2(total / rate) : 0;
+}
+
+function updateLineTotals(){
+  if(!draft) return;
+  draft.items.forEach((it, idx) => {
+    const el = document.getElementById('lineTotal-' + idx);
+    if(el) el.textContent = fmtLBP(it.total || 0);
+  });
+}
+
+function updateTotalBar(){
+  if(!draft) return;
+  const lbp = $('#tLBP'), usd = $('#tUSD'), rate = $('#tRate');
+  if(lbp) lbp.textContent = fmtLBP(draft.totalLBP);
+  if(usd) usd.textContent = fmtUSD(draft.totalUSD);
+  if(rate) rate.textContent = fmtLBP(draft.rate);
+}
+
+/* -------- Search / add items -------- */
+function onProductSearch(el){
+  const q = el.value.trim();
+  const box = $('#searchResults');
+  if(!box) return;
+  if(!q){ box.innerHTML = ''; box.classList.remove('open'); return; }
+
+  const matches = state.products
+    .filter(p => p.name.indexOf(q) !== -1)
+    .slice(0, 8);
+
+  let html = matches.map(p =>
+    '<button class="search-item" data-action="add-from-search" data-id="' + p.id + '">' +
+      '<span class="si-name">' + esc(p.name) + '</span>' +
+      '<span class="si-price num">' + fmtLBP(p.price) + ' ل.ل</span>' +
+    '</button>'
+  ).join('');
+
+  const exact = state.products.some(p => p.name === q);
+  if(!exact){
+    html += '<button class="search-item new" data-action="add-new-from-search" data-name="' + esc(q) + '">' +
+      '<span class="si-name">+ إضافة صنف جديد: «' + esc(q) + '»</span>' +
+    '</button>';
+  }
+  if(!html){ html = '<div style="padding:14px;text-align:center;color:#94a3b8;font-size:14px">لا توجد نتائج</div>'; }
+
+  box.innerHTML = html;
+  box.classList.add('open');
+}
+
+function closeSearch(){
+  const box = $('#searchResults');
+  if(box){ box.innerHTML = ''; box.classList.remove('open'); }
+  const inp = $('#productSearch');
+  if(inp) inp.value = '';
+}
+
+function addItem(name, price, productId){
+  if(!draft) return;
+  draft.items.push({
+    productId: productId || null,
+    name: String(name || '').trim(),
+    qty: 1,
+    price: Math.max(0, Number(price) || 0),
+    total: 0
+  });
+  recalc(); renderItems(); updateTotalBar();
+}
+
+function addBlankItem(){
+  if(!draft) return;
+  draft.items.push({ productId:null, name:'', qty:1, price:0, total:0 });
+  recalc(); renderItems(); updateTotalBar();
+  const rows = $$('#itemsList .item-row');
+  const last = rows[rows.length - 1];
+  if(last){
+    const inp = last.querySelector('.item-name');
+    if(inp){ inp.focus(); last.scrollIntoView({behavior:'smooth', block:'center'}); }
+  }
+}
+
+/* ==========================================================================
+   7. INVOICE SAVE / VALIDATION
+   ========================================================================== */
+let saving = false;
+
+function buildInvoiceFromDraft(){
+  const items = draft.items.map(it => ({
+    productId: it.productId || null,
+    name: String(it.name || '').trim(),
+    qty: Number(it.qty) || 0,
+    price: Math.max(0, Number(it.price) || 0),
+    total: Math.round((Number(it.qty)||0) * (Number(it.price)||0))
+  }));
+  const totalLBP = items.reduce((a,b) => a + b.total, 0);
+  const rate = Number(draft.rate) > 0 ? Number(draft.rate) : 0;
+  return {
+    id: draft.editingId || uid(),
+    number: draft.number,
+    date: draft.date,
+    customer: String(draft.customer || '').trim(),
+    items: items,
+    totalLBP: totalLBP,
+    rate: rate,
+    totalUSD: rate > 0 ? r2(totalLBP / rate) : 0,
+    updatedAt: draft.editingId ? new Date().toISOString() : null
+  };
+}
+
+function validateDraft(){
+  if(!draft) return 'لا توجد فاتورة.';
+  if(!draft.items.length) return 'أضف صنفاً واحداً على الأقل قبل الحفظ.';
+  if(!(Number(draft.rate) > 0)) return 'سعر الصرف غير صالح. حدّده من الإعدادات.';
+
+  for(let i = 0; i < draft.items.length; i++){
+    const it = draft.items[i];
+    const name = String(it.name || '').trim();
+    if(!name) return 'الصنف رقم ' + (i+1) + ': اسم الصنف مطلوب.';
+    const q = Number(it.qty);
+    const p = Number(it.price);
+    if(!isFinite(q) || q <= 0) return 'الصنف «' + name + '»: الكمية يجب أن تكون أكبر من صفر.';
+    if(!isFinite(p) || p < 0) return 'الصنف «' + name + '»: سعر الوحدة غير صالح.';
+  }
+  return null;
+}
+
+function openSaveOptions(){
+  if(!draft) return;
+  const err = validateDraft();
+  if(err){ toast(err, 'err', 3600); return; }
+
+  let html = '<div class="modal-head"><h3>حفظ الفاتورة</h3>' +
+             '<button class="icon-btn" data-action="close-modal" aria-label="إغلاق">' + ICONS.close + '</button></div>' +
+             '<div class="modal-body">' +
+             '<button class="btn btn-primary btn-block" style="margin-bottom:16px" data-action="execute-save" data-type="general">حفظ كفاتورة عامة (كاش)</button>' +
+             '<div class="divider">أو تسجيل على حساب زبون (دين)</div>' +
+             '<div class="search-wrap">' + ICONS.search + 
+             '<input id="modalCustomerSearch" class="input search-input" type="text" placeholder="ابحث عن زبون..." autocomplete="off"></div>' +
+             '<div id="modalCustomersList" style="margin-top:10px;max-height:200px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;padding:8px"></div>' +
+             '</div>';
+  showModal(html, 'sm');
+  renderModalCustomers('');
+}
+
+function renderModalCustomers(q){
+  const box = $('#modalCustomersList');
+  if(!box) return;
+  let list = state.customers.slice();
+  if(q) list = list.filter(c => c.name.indexOf(q) !== -1);
+  if(!list.length){
+    box.innerHTML = '<div style="text-align:center;padding:10px;color:var(--muted);font-size:14px">لا يوجد زبائن مطابقة</div>';
+    return;
+  }
+  box.innerHTML = list.map(c => 
+    '<button class="search-item" data-action="execute-save" data-type="debt" data-cid="' + c.id + '" data-cname="' + esc(c.name) + '">' +
+    '<span class="si-name">' + esc(c.name) + '</span>' +
+    '</button>'
+  ).join('');
+}
+
+function executeSave(el){
+  if(saving) return;
+  if(!draft) return;
+  
+  const type = el.dataset.type;
+  if(type === 'debt'){
+    draft.customer = el.dataset.cname; // نثبت اسم الزبون
+    draft.customerId = el.dataset.cid; // رقم الزبون للديون
+  } else {
+    draft.customerId = null; // فاتورة عامة
+  }
+
+  saving = true;
+  try {
+    recalc();
+    const inv = buildInvoiceFromDraft();
+    inv.customerId = draft.customerId;
+
+    if(draft.editingId){
+      const idx = state.invoices.findIndex(x => x.id === draft.editingId);
+      if(idx !== -1){
+        inv.date = state.invoices[idx].date;
+        state.invoices[idx] = inv;
+      } else {
+        state.invoices.push(inv);
+      }
+      toast('تم تحديث الفاتورة #' + inv.number, 'ok');
+    } else {
+      state.invoices.push(inv);
+      state.counter = Math.max(state.counter, inv.number) + 1;
+      toast('تم حفظ الفاتورة #' + inv.number, 'ok');
+    }
+
+    const ok = saveState();
+    if(!ok){ saving = false; return; }
+
+    draft = null;
+    saving = false;
+    closeModal(true); // نغلق النافذة بدون التراجع في السجل 
+    goBack(); // نعود للصفحة السابقة
+  } catch(e){
+    console.error(e);
+    saving = false;
+    toast('حدث خطأ أثناء الحفظ.', 'err', 4000);
+  }
+}
+
+function cancelInvoice(){
+  if(!draft){ goBack(); return; }
+  if(!draft.items.length && !draft.customer && !draft.editingId){
+    draft = null; goBack(); return;
+  }
+  confirmDialog(
+    draft.editingId ? 'إلغاء التعديل؟' : 'إلغاء الفاتورة؟',
+    'سيتم فقدان كل التغييرات غير المحفوظة.',
+    'إلغاء الفاتورة', 'متابعة'
+  ).then(ok => {
+    if(ok){ draft = null; goBack(); }
+  });
+}
+
+/* ==========================================================================
+   8. HISTORY SCREEN
+   ========================================================================== */
+function historyHTML(){
+  return '' +
+  '<div class="shell">' +
+    '<header class="topbar">' +
+      '<button class="icon-btn" data-action="go-back" aria-label="رجوع">' + ICONS.back + '</button>' +
+      '<div class="topbar-title"><div class="tt-main">سجل الفواتير</div><div class="tt-sub">' + state.invoices.length + ' فاتورة</div></div>' +
+      '<div style="width:42px"></div>' +
+    '</header>' +
+
+    '<div class="card">' +
+      '<div class="search-wrap">' + ICONS.search +
+        '<input id="histSearch" class="input search-input" type="text" placeholder="ابحث برقم الفاتورة أو اسم الزبون" autocomplete="off" value="' + esc(ui.histSearch) + '">' +
+      '</div>' +
+      '<div class="row">' +
+        '<div><label class="field-label" style="margin-top:10px">من تاريخ</label><input id="histFrom" class="input" type="date" value="' + esc(ui.histFrom) + '"></div>' +
+        '<div><label class="field-label" style="margin-top:10px">إلى تاريخ</label><input id="histTo" class="input" type="date" value="' + esc(ui.histTo) + '"></div>' +
+      '</div>' +
+      '<div style="margin-top:10px"><button class="link-btn" data-action="clear-hist-filters">مسح الفلاتر</button></div>' +
+    '</div>' +
+
+    '<div id="historyList"></div>' +
+  '</div>';
+}
+
+function filteredInvoices(){
+  const q = ui.histSearch.trim().toLowerCase();
+  let list = state.invoices.slice();
+  if(q){
+    list = list.filter(inv =>
+      String(inv.number).indexOf(q) !== -1 ||
+      ('#' + inv.number).indexOf(q) !== -1 ||
+      (inv.customer || '').toLowerCase().indexOf(q) !== -1
+    );
+  }
+  if(ui.histFrom) list = list.filter(inv => isoDay(inv.date) >= ui.histFrom);
+  if(ui.histTo)   list = list.filter(inv => isoDay(inv.date) <= ui.histTo);
+  list.sort((a,b) => new Date(b.date) - new Date(a.date) || b.number - a.number);
+  return list;
+}
+
+function renderHistoryList(){
+  const box = $('#historyList');
+  if(!box) return;
+  const list = filteredInvoices();
+  if(!list.length){
+    box.innerHTML = '<div class="empty"><b>لا توجد فواتير</b>' + (state.invoices.length ? 'لا توجد نتائج مطابقة للبحث.' : 'ابدأ بإنشاء أول فاتورة.') + '</div>';
+    return;
+  }
+  box.innerHTML = list.map(inv =>
+    '<div class="hist-card">' +
+      '<div class="hist-top">' +
+        '<span class="hist-num">#' + inv.number + '</span>' +
+        '<span class="hist-date">' + fmtDate(inv.date) + ' · ' + fmtTime(inv.date) + '</span>' +
+      '</div>' +
+      (inv.customer ? '<div class="hist-cust">👤 ' + esc(inv.customer) + '</div>' : '') +
+      '<div class="hist-totals">' +
+        '<span class="hist-lbp num">' + moneyLBP(inv.totalLBP) + '</span>' +
+        '<span class="hist-usd num">' + moneyUSD(inv.totalUSD) + '</span>' +
+        '<span style="font-size:11.5px;color:#94a3b8">· سعر الصرف ' + fmtLBP(inv.rate) + '</span>' +
+      '</div>' +
+      '<div class="hist-actions">' +
+        '<button class="btn btn-soft" data-action="view-invoice" data-id="' + inv.id + '">عرض</button>' +
+        '<button class="btn btn-ghost" data-action="edit-invoice" data-id="' + inv.id + '">تعديل</button>' +
+        '<button class="btn btn-ghost" data-action="share-invoice" data-id="' + inv.id + '">مشاركة</button>' +
+        '<button class="btn btn-danger" data-action="delete-invoice" data-id="' + inv.id + '">حذف</button>' +
+      '</div>' +
+    '</div>'
+  ).join('');
+}
+
+/* ==========================================================================
+   9. PRODUCTS SCREEN
+   ========================================================================== */
+function productsHTML(){
+  const opts = ['<option value="">بدون تصنيف</option>']
+    .concat(CATEGORIES.map(c => '<option value="' + esc(c) + '">' + esc(c) + '</option>')).join('');
+  return '' +
+  '<div class="shell">' +
+    '<header class="topbar">' +
+      '<button class="icon-btn" data-action="go-back" aria-label="رجوع">' + ICONS.back + '</button>' +
+      '<div class="topbar-title"><div class="tt-main">الأصناف</div><div class="tt-sub">' + state.products.length + ' صنفاً</div></div>' +
+      '<div style="width:42px"></div>' +
+    '</header>' +
+
+    '<div class="card">' +
+      '<label class="field-label">إضافة صنف جديد</label>' +
+      '<input id="newProductName" class="input" type="text" placeholder="اسم الصنف" autocomplete="off">' +
+      '<div class="row">' +
+        '<input id="newProductPrice" class="input num" type="number" inputmode="decimal" min="0" step="any" placeholder="السعر بالليرة">' +
+        '<select id="newProductCat" class="input">' + opts + '</select>' +
+      '</div>' +
+      '<div style="margin-top:12px">' +
+        '<button class="btn btn-primary btn-block" data-action="add-product-form">' + ICONS.plus + ' إضافة الصنف</button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card" style="padding:12px">' +
+      '<div class="search-wrap">' + ICONS.search +
+        '<input id="productsSearch" class="input search-input" type="text" placeholder="ابحث في الأصناف..." autocomplete="off" value="' + esc(ui.productsSearch) + '">' +
+      '</div>' +
+    '</div>' +
+
+    '<div id="productsList"></div>' +
+  '</div>';
+}
+
+function renderProductsList(){
+  const box = $('#productsList');
+  if(!box) return;
+  const q = ui.productsSearch.trim();
+  let list = state.products.slice();
+  if(q) list = list.filter(p => p.name.indexOf(q) !== -1 || (p.category||'').indexOf(q) !== -1);
+  list.sort((a,b) => a.name.localeCompare(b.name, 'ar'));
+
+  if(!list.length){
+    box.innerHTML = '<div class="empty"><b>' + (q ? 'لا توجد نتائج' : 'لا توجد أصناف محفوظة') + '</b>' +
+      (q ? 'جرّب كلمة بحث أخرى.' : 'أضف أصنافك من الأعلى لتسريع إنشاء الفواتير.') + '</div>';
+    return;
+  }
+
+  box.innerHTML = list.map(p =>
+    '<div class="prod-row">' +
+      '<div class="prod-info">' +
+        '<div class="prod-name">' + esc(p.name) + '</div>' +
+        '<div class="prod-price num">' + moneyLBP(p.price) + (p.category ? ' · ' + esc(p.category) : '') + '</div>' +
+      '</div>' +
+      '<div class="prod-actions">' +
+        '<button class="icon-btn" data-action="edit-product" data-id="' + p.id + '" aria-label="تعديل">' + ICONS.edit + '</button>' +
+        '<button class="icon-btn danger" data-action="delete-product" data-id="' + p.id + '" aria-label="حذف">' + ICONS.trash + '</button>' +
+      '</div>' +
+    '</div>'
+  ).join('');
+}
+
+function addProductFromForm(){
+  const nameEl = $('#newProductName');
+  const priceEl = $('#newProductPrice');
+  const catEl = $('#newProductCat');
+  if(!nameEl || !priceEl) return;
+
+  const name = nameEl.value.trim();
+  const price = parseNum(priceEl.value);
+
+  nameEl.classList.remove('invalid'); priceEl.classList.remove('invalid');
+  if(!name){ nameEl.classList.add('invalid'); nameEl.focus(); toast('اسم الصنف مطلوب', 'err'); return; }
+  if(!isFinite(price) || price < 0){ priceEl.classList.add('invalid'); priceEl.focus(); toast('أدخل سعراً صالحاً (0 أو أكثر)', 'err'); return; }
+
+  const dup = state.products.find(p => p.name === name);
+  if(dup){ toast('يوجد صنف بنفس الاسم مسبقاً', 'err'); return; }
+
+  state.products.push({ id: uid(), name: name, price: price, category: catEl ? catEl.value : '' });
+  saveState();
+  nameEl.value = ''; priceEl.value = ''; if(catEl) catEl.value = '';
+  renderProductsList();
+  toast('تمت إضافة الصنف', 'ok');
+}
+
+function openProductEditModal(id){
+  const p = state.products.find(x => x.id === id);
+  if(!p) return;
+  const opts = ['<option value="">بدون تصنيف</option>']
+    .concat(CATEGORIES.map(c => '<option value="' + esc(c) + '"' + (p.category === c ? ' selected' : '') + '>' + esc(c) + '</option>')).join('');
+  showModal(
+    '<div class="modal-head"><h3>تعديل الصنف</h3>' +
+      '<button class="icon-btn" data-action="close-modal" aria-label="إغلاق">' + ICONS.close + '</button></div>' +
+    '<div class="modal-body">' +
+      '<label class="field-label">اسم الصنف</label>' +
+      '<input id="editProdName" class="input" type="text" value="' + esc(p.name) + '">' +
+      '<label class="field-label" style="margin-top:14px">السعر بالليرة</label>' +
+      '<input id="editProdPrice" class="input num" type="number" inputmode="decimal" min="0" step="any" value="' + esc(p.price) + '">' +
+      '<label class="field-label" style="margin-top:14px">التصنيف (اختياري)</label>' +
+      '<select id="editProdCat" class="input">' + opts + '</select>' +
+      '<div class="hint">تعديل السعر لا يؤثر على الفواتير القديمة المحفوظة.</div>' +
+    '</div>' +
+    '<div class="modal-actions">' +
+      '<button class="btn btn-primary" data-action="save-product-edit" data-id="' + p.id + '">حفظ التعديل</button>' +
+      '<button class="btn btn-ghost" data-action="close-modal">إلغاء</button>' +
+    '</div>', 'sm');
+}
+
+function saveProductEdit(id){
+  const p = state.products.find(x => x.id === id);
+  if(!p) return;
+  const name = $('#editProdName').value.trim();
+  const price = parseNum($('#editProdPrice').value);
+  const cat = $('#editProdCat').value;
+
+  if(!name){ toast('اسم الصنف مطلوب', 'err'); return; }
+  if(!isFinite(price) || price < 0){ toast('سعر غير صالح', 'err'); return; }
+  if(state.products.some(x => x.id !== id && x.name === name)){ toast('يوجد صنف آخر بنفس الاسم', 'err'); return; }
+
+  p.name = name; p.price = price; p.category = cat;
+  saveState();
+  closeModal();
+  renderProductsList();
+  toast('تم تحديث الصنف', 'ok');
+}
+
+function deleteProduct(id){
+  const p = state.products.find(x => x.id === id);
+  if(!p) return;
+  confirmDialog('حذف الصنف؟', 'سيتم حذف «' + p.name + '» من قائمة الأصناف. الفواتير القديمة لن تتأثر.', 'حذف', 'رجوع')
+    .then(ok => {
+      if(!ok) return;
+      state.products = state.products.filter(x => x.id !== id);
+      saveState();
+      renderProductsList();
+      toast('تم حذف الصنف', 'ok');
+    });
+}
+
+/* ==========================================================================
+   10. SETTINGS SCREEN
+   ========================================================================== */
+function settingsHTML(){
+  const s = state.settings;
+  return '' +
+  '<div class="shell">' +
+    '<header class="topbar">' +
+      '<button class="icon-btn" data-action="go-back" aria-label="رجوع">' + ICONS.back + '</button>' +
+      '<div class="topbar-title"><div class="tt-main">الإعدادات</div><div class="tt-sub">إعدادات المحل والنظام</div></div>' +
+      '<div style="width:42px"></div>' +
+    '</header>' +
+
+    '<div class="card">' +
+      '<label class="field-label">شعار المحل</label>' +
+      '<div style="display:flex;align-items:center;gap:14px">' +
+        logoHTML(64) +
+        '<div style="flex:1;min-width:0">' +
+          '<input id="logoInput" type="file" accept="image/*" style="display:none">' +
+          '<button class="btn btn-soft btn-block" data-action="pick-logo">اختيار صورة</button>' +
+          (s.logo ? '<button class="link-btn" data-action="remove-logo" style="margin-top:8px">إزالة الشعار</button>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<label class="field-label" for="setShopName">اسم المحل</label>' +
+      '<input id="setShopName" class="input" type="text" value="' + esc(s.shopName) + '" placeholder="اسم المحل">' +
+      '<label class="field-label" style="margin-top:14px" for="setPhone">رقم الهاتف (اختياري)</label>' +
+      '<input id="setPhone" class="input" type="tel" value="' + esc(s.phone) + '" placeholder="مثال: 76 123 456">' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<label class="field-label" for="setRate">سعر صرف الدولار مقابل الليرة اللبنانية</label>' +
+      '<div class="rate-row">' +
+        '<input id="setRate" class="input num" type="number" inputmode="decimal" min="1" step="any" value="' + esc(s.rate) + '">' +
+        '<span style="font-size:13px;color:#64748b;white-space:nowrap;font-weight:700">ل.ل = 1 $</span>' +
+      '</div>' +
+      '<div class="rate-preview" id="ratePreview"></div>' +
+      '<div class="hint">يُستخدم هذا السعر في الفواتير الجديدة فقط. الفواتير المحفوظة تحتفظ بسعر الصرف الخاص بها.</div>' +
+      '<div style="margin-top:14px">' +
+        '<button class="btn btn-primary btn-block" data-action="save-settings">' + ICONS.check + ' حفظ الإعدادات</button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<label class="field-label">النسخ الاحتياطي والبيانات</label>' +
+      '<div style="display:flex;flex-direction:column;gap:9px">' +
+        '<button class="btn btn-soft btn-block" data-action="export-backup">' + ICONS.download + ' تصدير نسخة احتياطية (JSON)</button>' +
+        '<button class="btn btn-ghost btn-block" data-action="import-backup">' + ICONS.box + ' استعادة نسخة احتياطية</button>' +
+        '<button class="btn btn-ghost btn-block" data-action="export-csv">' + ICONS.list + ' تصدير الفواتير (CSV)</button>' +
+        '<input id="backupInput" type="file" accept="application/json,.json" style="display:none">' +
+      '</div>' +
+      '<div class="divider"></div>' +
+      '<button class="btn btn-danger btn-block" data-action="clear-data">' + ICONS.trash + ' حذف جميع البيانات</button>' +
+      '<div class="hint">التخزين محلي على هذا الجهاز فقط. حذف بيانات المتصفح يؤدي إلى فقدانها، لذلك احتفظ بنسخة احتياطية دورياً.</div>' +
+    '</div>' +
+
+    '<div class="hint" style="text-align:center;margin-top:18px;padding-bottom:20px">نظام الفواتير والمبيعات · الإصدار 1.0</div>' +
+  '</div>';
+}
+
+function updateRatePreview(){
+  const el = $('#ratePreview');
+  const inp = $('#setRate');
+  if(!el || !inp) return;
+  const r = parseNum(inp.value);
+  if(!isFinite(r) || r <= 0){
+    el.innerHTML = 'أدخل سعر صرف صالحاً أكبر من صفر.';
+    return;
+  }
+  el.innerHTML =
+    'مثال: فاتورة بقيمة <b>' + fmtLBP(1000000) + ' ل.ل</b> = <b>' + moneyUSD(r2(1000000 / r)) + '</b>' +
+    '<br>وفاتورة بقيمة <b>' + fmtLBP(r) + ' ل.ل</b> = <b>' + moneyUSD(1) + '</b>';
+}
+
+function saveSettings(){
+  const nameEl = $('#setShopName');
+  const phoneEl = $('#setPhone');
+  const rateEl = $('#setRate');
+
+  const name = nameEl.value.trim();
+  const rate = parseNum(rateEl.value);
+
+  nameEl.classList.remove('invalid'); rateEl.classList.remove('invalid');
+
+  if(!name){ nameEl.classList.add('invalid'); nameEl.focus(); toast('اسم المحل مطلوب', 'err'); return; }
+  if(!isFinite(rate) || rate <= 0){ rateEl.classList.add('invalid'); rateEl.focus(); toast('سعر الصرف يجب أن يكون أكبر من صفر', 'err'); return; }
+
+  state.settings.shopName = name;
+  state.settings.phone = phoneEl.value.trim();
+  state.settings.rate = rate;
+
+  if(saveState()){
+    toast('تم حفظ الإعدادات', 'ok');
+    render();
+  }
+}
+
+function pickLogo(){
+  const input = $('#logoInput');
+  if(input) input.click();
+}
+
+function handleLogoFile(file){
+  if(!file) return;
+  if(!/^image\//.test(file.type)){ toast('اختر ملف صورة صالحاً', 'err'); return; }
+  if(file.size > 6 * 1024 * 1024){ toast('حجم الصورة كبير جداً (الحد 6MB)', 'err'); return; }
+
+  const reader = new FileReader();
+  reader.onload = function(){
+    const img = new Image();
+    img.onload = function(){
+      try {
+        const size = 200;
+        const cv = document.createElement('canvas');
+        cv.width = size; cv.height = size;
+        const ctx = cv.getContext('2d');
+        const ratio = Math.min(img.width / size, img.height / size);
+        const w = img.width / ratio, h = img.height / ratio;
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0,0,size,size);
+        ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
+        // تحويل الصورة إلى JPG بدلاً من PNG لتقليل حجم التخزين بشكل كبير
+        state.settings.logo = cv.toDataURL('image/jpeg', 0.7);
+        saveState();
+        render();
+        toast('تم حفظ الشعار', 'ok');
+      } catch(e){
+        toast('تعذّر معالجة الصورة', 'err');
+      }
+    };
+    img.onerror = function(){ toast('تعذّر قراءة الصورة', 'err'); };
+    img.src = reader.result;
+  };
+  reader.onerror = function(){ toast('تعذّر قراءة الملف', 'err'); };
+  reader.readAsDataURL(file);
+}
+
+/* ==========================================================================
+   11. BACKUP & EXPORT
+   ========================================================================== */
+function downloadBlob(blob, filename){
+  try {
+    // التحقق مما إذا كان التطبيق يعمل داخل الأندرويد المبرمج الخاص بنا
+    if (window.AndroidInterface) {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = function() {
+        const base64data = reader.result;
+        window.AndroidInterface.saveFile(base64data, blob.type, filename);
+      }
+      return;
+    }
+    // إذا كان يعمل على متصفح عادي
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  } catch(e){
+    toast('تعذّر تنزيل الملف', 'err');
+  }
+}
+
+function exportBackup(){
+  const data = {
+    app: 'smartpos-lb',
+    version: BACKUP_VERSION,
+    exportedAt: new Date().toISOString(),
+    settings: state.settings,
+    products: state.products,
+    invoices: state.invoices,
+    customers: state.customers,
+    counter: state.counter
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' });
+  const d = new Date();
+  const fname = 'backup-' + d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate()) + '-' + pad2(d.getHours()) + pad2(d.getMinutes()) + '.json';
+  downloadBlob(blob, fname);
+  toast('تم تصدير النسخة الاحتياطية', 'ok');
+}
+
+function importBackupFile(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(){
+    let parsed;
+    try { parsed = JSON.parse(reader.result); }
+    catch(e){ toast('الملف غير صالح — ليس JSON سليماً', 'err', 4000); return; }
+
+    if(!parsed || typeof parsed !== 'object'){
+      toast('بنية النسخة الاحتياطية غير صحيحة', 'err', 4000); return;
+    }
+    if(!parsed.settings || !Array.isArray(parsed.products) || !Array.isArray(parsed.invoices)){
+      toast('النسخة الاحتياطية لا تحتوي على البيانات المطلوبة', 'err', 4000); return;
+    }
+
+    // تحقق إضافي من الفواتير
+    const bad = parsed.invoices.some(inv => !inv || !Array.isArray(inv.items));
+    if(bad){ toast('النسخة الاحتياطية تحتوي على فواتير تالفة', 'err', 4000); return; }
+
+    const normalized = normalizeState(parsed);
+
+    confirmDialog(
+      'استعادة النسخة الاحتياطية؟',
+      'سيتم استبدال جميع البيانات الحالية (' + state.invoices.length + ' فاتورة، ' + state.products.length + ' صنف) ببيانات النسخة: ' +
+      normalized.invoices.length + ' فاتورة و' + normalized.products.length + ' صنف. لا يمكن التراجع.',
+      'استعادة الآن', 'إلغاء'
+    ).then(ok => {
+      if(!ok) return;
+      state = normalized;
+      saveState();
+      draft = null;
+      goBack();
+      toast('تمت استعادة النسخة الاحتياطية', 'ok', 3000);
+    });
+  };
+  reader.onerror = function(){ toast('تعذّر قراءة الملف', 'err'); };
+  reader.readAsText(file, 'utf-8');
+}
+
+function exportCSV(){
+  if(!state.invoices.length){ toast('لا توجد فواتير للتصدير', 'err'); return; }
+  const rows = [['رقم الفاتورة','التاريخ','الوقت','الزبون','عدد الأصناف','الإجمالي بالليرة','سعر الصرف','الإجمالي بالدولار']];
+  state.invoices.slice().sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(inv => {
+    rows.push([
+      inv.number,
+      fmtDate(inv.date),
+      fmtTime(inv.date),
+      (inv.customer || '').replace(/"/g,'""'),
+      inv.items.length,
+      inv.totalLBP,
+      inv.rate,
+      fmtUSD(inv.totalUSD)
+    ]);
+  });
+  const csv = '\uFEFF' + rows.map(r => r.map(c => {
+    const s = String(c);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+  }).join(',')).join('\r\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  downloadBlob(blob, 'invoices-' + isoDay(new Date()) + '.csv');
+  toast('تم تصدير الفواتير', 'ok');
+}
+
+function clearAllData(){
+  confirmDialog(
+    'حذف جميع البيانات؟',
+    'سيتم حذف كل الفواتير والأصناف والإعدادات نهائياً من هذا الجهاز. لا يمكن التراجع.',
+    'حذف كل شيء', 'إلغاء'
+  ).then(ok => {
+    if(!ok) return;
+    state = defaultState();
+    draft = null;
+    saveState();
+    goBack();
+    toast('تم حذف جميع البيانات', 'ok');
+  });
+}
+
+/* ==========================================================================
+   12. INVOICE CANVAS RENDERER (PNG)
+   ========================================================================== */
+function rrect(c, x, y, w, h, r){
+  if(typeof c.roundRect === 'function'){
+    c.beginPath(); c.roundRect(x, y, w, h, r); return;
+  }
+  c.beginPath();
+  c.moveTo(x + r, y);
+  c.arcTo(x + w, y, x + w, y + h, r);
+  c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r);
+  c.arcTo(x, y, x + w, y, r);
+  c.closePath();
+}
+
+function fitText(ctx, text, maxW){
+  if(ctx.measureText(text).width <= maxW) return text;
+  let t = text;
+  while(t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+  return t + '…';
+}
+
+function loadImage(src){
+  return new Promise(function(resolve){
+    if(!src) return resolve(null);
+    const img = new Image();
+    img.onload = function(){ resolve(img); };
+    img.onerror = function(){ resolve(null); };
+    img.src = src;
+  });
+}
+
+async function buildInvoiceCanvas(inv){
+  try { await document.fonts.ready; } catch(e){}
+
+  // استخدام معامل تكبير أقل لتفادي انهيار الذاكرة في الهواتف
+  const S = 1.5; 
+  const W = 760; 
+  const PAD = 44;
+  const CW = W - PAD * 2;
+  const ROW = 55; 
+
+  // زيادة ارتفاع الترويسة لاستيعاب التصميم المتوسط الجديد
+  const headerH = 240; 
+  const tableHeadH = 60;
+  const rowsH = Math.max(inv.items.length, 1) * ROW;
+  
+  const totalsBoxH = 130;
+  const footerH = 140; 
+  
+  const H = headerH + tableHeadH + rowsH + 30 + totalsBoxH + footerH; 
+
+  const cv = document.createElement('canvas');
+  cv.width = W * S;
+  cv.height = H * S;
+  const c = cv.getContext('2d');
+  c.scale(S, S);
+  
+  c.textBaseline = 'middle'; 
+
+  const FONT = '"Tajawal","Segoe UI",Tahoma,Arial,sans-serif';
+  const setFont = (size, weight) => { c.font = (weight||400) + ' ' + size + 'px ' + FONT; };
+
+  function drawDottedLine(y){
+    c.beginPath();
+    c.setLineDash([7, 7]);
+    c.moveTo(PAD, y);
+    c.lineTo(W - PAD, y);
+    c.strokeStyle = '#cbd5e1';
+    c.lineWidth = 1.5;
+    c.stroke();
+    c.setLineDash([]);
+  }
+
+  function drawRoundedRect(x, y, w, h, r, fillStyle, strokeStyle, lineWidth = 1.5) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+    if (fillStyle) {
+      c.fillStyle = fillStyle;
+      c.fill();
+    }
+    if (strokeStyle) {
+      c.strokeStyle = strokeStyle;
+      c.lineWidth = lineWidth;
+      c.stroke();
+    }
+  }
+
+  /* ---- الخلفية البيضاء ---- */
+  c.fillStyle = '#ffffff';
+  c.fillRect(0, 0, W, H);
+
+  /* ---- الإطار الخارجي الدائري ---- */
+  c.strokeStyle = '#e2e8f0';
+  c.lineWidth = 2;
+  rrect(c, 12, 12, W - 24, H - 24, 16);
+  c.stroke();
+
+  /* ---- الترويسة العليا (متوسطة) ---- */
+  let currentY = 45;
+  
+  // الشعار بالمنتصف
+  const logoSize = 64;
+  const logoX = (W - logoSize) / 2;
+  const logoImg = await loadImage(state.settings.logo);
+
+  if(logoImg){
+    c.save();
+    rrect(c, logoX, currentY, logoSize, logoSize, 14);
+    c.clip();
+    c.drawImage(logoImg, logoX, currentY, logoSize, logoSize);
+    c.restore();
+    currentY += logoSize + 18;
+  } else {
+    rrect(c, logoX, currentY, logoSize, logoSize, 14);
+    c.fillStyle = '#1d4ed8';
+    c.fill();
+    setFont(28, 800);
+    c.fillStyle = '#ffffff';
+    c.textAlign = 'center';
+    c.direction = 'rtl';
+    c.fillText((state.settings.shopName || 'م').trim().charAt(0), W / 2, currentY + logoSize/2);
+    currentY += logoSize + 18;
+  }
+
+  // اسم المحل بالمنتصف (غامق)
+  setFont(28, 800);
+  c.fillStyle = '#0f172a';
+  c.textAlign = 'center';
+  c.direction = 'rtl';
+  c.fillText(fitText(c, state.settings.shopName, W - PAD*2), W / 2, currentY);
+
+  // رقم الهاتف بالمنتصف (غامق)
+  if(state.settings.phone){
+    currentY += 28;
+    setFont(17, 700);
+    c.fillStyle = '#334155';
+    c.fillText(state.settings.phone, W / 2, currentY);
+  }
+
+  currentY += 45;
+  
+  // رقم الفاتورة (يسار)
+  setFont(16, 700);
+  c.fillStyle = '#64748b';
+  c.textAlign = 'left';
+  c.direction = 'ltr';
+  c.fillText('فاتورة', PAD, currentY);
+  
+  setFont(26, 800);
+  c.fillStyle = '#1d4ed8';
+  c.fillText('#' + inv.number, PAD, currentY + 26);
+
+  // الزبون والتاريخ (يمين - غامق)
+  c.textAlign = 'right';
+  c.direction = 'rtl';
+  setFont(16, 700);
+  c.fillStyle = '#334155';
+  if(inv.customer){
+     c.fillText('الزبون: ' + inv.customer, W - PAD, currentY);
+     c.fillText('التاريخ: ' + fmtDate(inv.date) + ' · ' + fmtTime(inv.date), W - PAD, currentY + 26);
+  } else {
+     c.fillText('التاريخ: ' + fmtDate(inv.date) + ' · ' + fmtTime(inv.date), W - PAD, currentY + 13);
+  }
+
+  currentY += 60;
+  drawDottedLine(currentY);
+
+  /* ---- عناوين الجدول ---- */
+  currentY += 30;
+  setFont(17, 800);
+  c.fillStyle = '#1d4ed8';
+  
+  const colNumX   = W - PAD;
+  const colNameX  = W - PAD - 40;
+  const colQtyX   = W / 2 + 30;
+  const colPriceX = PAD + 140;
+  const colTotalX = PAD;
+
+  c.textAlign = 'right';
+  c.fillText('#', colNumX, currentY);
+  c.fillText('الصنف', colNameX, currentY);
+
+  c.textAlign = 'center';
+  c.fillText('الكمية', colQtyX, currentY);
+  c.fillText('سعر الوحدة', colPriceX, currentY);
+
+  c.textAlign = 'left';
+  c.fillText('الإجمالي', colTotalX, currentY);
+
+  currentY += 30;
+  drawDottedLine(currentY);
+
+  /* ---- تفاصيل الأصناف ---- */
+  currentY += 30;
+  for(let i = 0; i < inv.items.length; i++){
+    const it = inv.items[i];
+    
+    // رقم (غامق)
+    setFont(15, 700);
+    c.fillStyle = '#64748b';
+    c.textAlign = 'right';
+    c.direction = 'ltr';
+    c.fillText(String(i + 1), colNumX, currentY);
+    c.direction = 'rtl';
+
+    // اسم الصنف (غامق جداً)
+    setFont(17, 800);
+    c.fillStyle = '#0f172a';
+    c.textAlign = 'right';
+    const nm = fitText(c, it.name, colNameX - colQtyX - 20);
+    c.fillText(nm, colNameX, currentY);
+
+    // الكمية (غامق)
+    setFont(17, 800);
+    c.fillStyle = '#dc2626';
+    c.textAlign = 'center';
+    c.fillText(String(it.qty), colQtyX, currentY);
+
+    // السعر (غامق)
+    setFont(16, 700);
+    c.fillStyle = '#0f172a';
+    c.fillText(fmtLBP(it.price), colPriceX, currentY);
+
+    // الإجمالي للسطر (غامق)
+    setFont(17, 800);
+    c.fillStyle = '#0f172a';
+    c.textAlign = 'left';
+    c.direction = 'ltr';
+    c.fillText(fmtLBP(it.total), colTotalX, currentY);
+    c.direction = 'rtl';
+
+    currentY += ROW;
+  }
+
+  currentY -= (ROW - 20); 
+  
+  /* ---- صندوق الإجمالي ---- */
+  currentY += 20;
+  drawRoundedRect(PAD, currentY, CW, totalsBoxH, 16, '#f5f8ff', '#dbe6ff', 1.5);
+  
+  let boxY = currentY + (totalsBoxH / 2);
+  
+  // الدولار
+  setFont(15, 700);
+  c.fillStyle = '#64748b';
+  c.textAlign = 'left';
+  c.direction = 'ltr';
+  c.fillText('ما يعادله بالدولار الأميركي', PAD + 26, boxY - 15);
+  
+  setFont(28, 800);
+  c.fillStyle = '#1d4ed8';
+  c.fillText('$ ' + fmtUSD(inv.totalUSD), PAD + 26, boxY + 20);
+
+  // الليرة اللبنانية
+  setFont(15, 700);
+  c.fillStyle = '#64748b';
+  c.textAlign = 'right';
+  c.direction = 'rtl';
+  c.fillText('الإجمالي بالليرة اللبنانية', W - PAD - 26, boxY - 15);
+  
+  setFont(28, 800);
+  c.fillStyle = '#0f172a';
+  c.direction = 'ltr';
+  c.fillText('ل.ل ' + fmtLBP(inv.totalLBP), W - PAD - 26, boxY + 20);
+  c.direction = 'rtl';
+
+  currentY += totalsBoxH + 30;
+
+  /* ---- مربع سعر الصرف ---- */
+  setFont(15, 700);
+  c.fillStyle = '#64748b';
+  c.textAlign = 'center';
+  c.direction = 'ltr';
+  c.fillText('سعر الصرف المعتمد: 1 $ = ' + fmtLBP(inv.rate) + ' ل.ل', W / 2, currentY);
+  c.direction = 'rtl';
+  
+  currentY += 40;
+  
+  /* ---- الفوتر ---- */
+  c.beginPath();
+  c.moveTo(PAD + 40, currentY);
+  c.lineTo(W - PAD - 40, currentY);
+  c.strokeStyle = '#e4ebf5';
+  c.lineWidth = 1;
+  c.stroke();
+  
+  currentY += 30;
+  setFont(20, 800);
+  c.fillStyle = '#1d4ed8';
+  c.textAlign = 'center';
+  c.fillText('شكراً لتعاملكم معنا', W / 2, currentY);
+  
+  currentY += 25;
+  setFont(15, 700);
+  c.fillStyle = '#94a3b8';
+  let footerSub = state.settings.shopName;
+  if(state.settings.phone) footerSub += ' · ' + state.settings.phone;
+  c.fillText(footerSub, W / 2, currentY);
+
+  return cv;
+}
+
+function dataURLtoBlob(dataUrl){
+  const parts = dataUrl.split(',');
+  const mime = parts[0].match(/:(.*?);/)[1];
+  const bin = atob(parts[1]);
+  const arr = new Uint8Array(bin.length);
+  for(let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
+/* ==========================================================================
+   13. PREVIEW / SHARE / PRINT / DOWNLOAD
+   ========================================================================== */
+async function openPreview(inv, isDraft){
+  let cv;
+  try {
+    cv = await buildInvoiceCanvas(inv);
+  } catch(e){
+    console.error(e);
+    toast('تعذّر إنشاء صورة الفاتورة', 'err');
+    return;
+  }
+  const url = cv.toDataURL('image/png');
+  previewState = { inv: inv, canvas: cv, dataUrl: url, isDraft: !!isDraft };
+
+  showModal(
+    '<div class="modal-head">' +
+      '<h3>معاينة الفاتورة #' + inv.number + '</h3>' +
+      '<div style="display:flex;gap:8px;align-items:center">' +
+        '<button class="icon-btn" data-action="download-preview" aria-label="تنزيل">' + ICONS.download + '</button>' +
+        '<button class="icon-btn" data-action="close-modal" aria-label="إغلاق">' + ICONS.close + '</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="preview-scroll"><img class="preview-img" src="' + url + '" alt="فاتورة رقم ' + inv.number + '"></div>' +
+    '<div class="modal-actions" style="padding:12px 18px">' +
+      (isDraft ? '<button class="btn btn-primary btn-block" data-action="save-invoice">' + ICONS.check + ' حفظ الفاتورة</button>' : '') +
+      '<button class="btn btn-soft" data-action="share-preview" style="flex:1">' + ICONS.share + ' مشاركة</button>' +
+      '<button class="btn btn-ghost" data-action="print-preview" style="flex:1">' + ICONS.print + ' طباعة</button>' +
+    '</div>', 'full');
+}
+
+function previewFileName(){
+  if(!previewState) return 'invoice.png';
+  return 'invoice-' + previewState.inv.number + '.png';
+}
+
+function downloadPreview(){
+  if(!previewState) return;
+  try {
+    const blob = dataURLtoBlob(previewState.dataUrl);
+    downloadBlob(blob, previewFileName());
+    toast('تم تنزيل الفاتورة كصورة', 'ok');
+  } catch(e){
+    toast('تعذّر تنزيل الصورة', 'err');
+  }
+}
+
+async function sharePreview(){
+  if(!previewState) return;
+  const name = previewFileName();
+
+  // التحقق مما إذا كان التطبيق يعمل داخل بيئة الأندرويد المغلفة
+  if (window.AndroidInterface) {
+    try {
+      const dataUrl = previewState.dataUrl;
+      const text = state.settings.shopName + ' — فاتورة رقم #' + previewState.inv.number;
+      // إرسال الصورة كـ Base64 إلى تطبيق الأندرويد ليقوم هو بمشاركتها
+      window.AndroidInterface.shareImage(dataUrl, name, text);
+      return;
+    } catch (e) {
+      toast('تعذّر مشاركة الصورة عبر التطبيق', 'err');
+    }
+  }
+
+  // الكود القديم يعمل كاحتياطي إذا تم فتح الملف في متصفح عادي
+  let file;
+  try {
+    const blob = dataURLtoBlob(previewState.dataUrl);
+    file = new File([blob], name, { type: 'image/png' });
+  } catch(e){
+    toast('تعذّر تجهيز الصورة', 'err');
+    return;
+  }
+
+  const shareData = {
+    files: [file],
+    title: 'فاتورة #' + previewState.inv.number,
+    text: state.settings.shopName + ' — فاتورة رقم #' + previewState.inv.number
+  };
+
+  if(navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share){
+    try {
+      await navigator.share(shareData);
+      return;
+    } catch(e){
+      if(e && e.name === 'AbortError') return;
+    }
+  }
+  downloadPreview();
+  toast('المشاركة غير مدعومة على هذا المتصفح — تم تنزيل الصورة', '', 3200);
+}
+
+function printPreview(){
+  if(!previewState) return;
+  const url = previewState.dataUrl;
+  const win = window.open('', '_blank');
+  if(!win){
+    toast('يرجى السماح بالنوافذ المنبثقة للطباعة', 'err', 3200);
+    return;
+  }
+  win.document.open();
+  win.document.write(
+    '<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>فاتورة #' + previewState.inv.number + '</title>' +
+    '<style>@page{size:A4;margin:10mm}html,body{margin:0;padding:0;background:#fff}' +
+    'img{width:100%;height:auto;display:block}</style></head><body>' +
+    '<img src="' + url + '" onload="setTimeout(function(){window.focus();window.print();},250)">' +
+    '</body></html>'
+  );
+  win.document.close();
+}
+
+/* ==========================================================================
+   14. EVENT HANDLING
+   ========================================================================== */
+   /* ==========================================================================
+   CUSTOMERS SCREEN
+   ========================================================================== */
+function customersHTML(){
+  return '' +
+  '<div class="shell">' +
+    '<header class="topbar">' +
+      '<button class="icon-btn" data-action="go-back" aria-label="رجوع">' + ICONS.back + '</button>' +
+      '<div class="topbar-title"><div class="tt-main">الزبائن</div><div class="tt-sub">' + state.customers.length + ' زبون</div></div>' +
+      '<div style="width:42px"></div>' +
+    '</header>' +
+    '<div class="card">' +
+      '<label class="field-label">إضافة زبون جديد</label>' +
+      '<input id="newCustomerName" class="input" type="text" placeholder="اسم الزبون" autocomplete="off">' +
+      '<input id="newCustomerPhone" class="input" type="tel" placeholder="رقم الهاتف (اختياري)" autocomplete="off" style="margin-top:10px">' +
+      '<div style="margin-top:12px">' +
+        '<button class="btn btn-primary btn-block" data-action="add-customer">' + ICONS.plus + ' إضافة الزبون</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card" style="padding:12px">' +
+      '<div class="search-wrap">' + ICONS.search +
+        '<input id="customersSearch" class="input search-input" type="text" placeholder="ابحث في الزبائن..." autocomplete="off">' +
+      '</div>' +
+    '</div>' +
+    '<div id="customersList"></div>' +
+  '</div>';
+}
+
+function renderCustomersList(){
+  const box = $('#customersList');
+  if(!box) return;
+  const q = (ui.customersSearch || '').trim();
+  let list = state.customers.slice();
+  if(q) list = list.filter(c => c.name.indexOf(q) !== -1);
+  
+  if(!list.length){
+    box.innerHTML = '<div class="empty"><b>لا يوجد زبائن مسجلين</b></div>';
+    return;
+  }
+  
+  box.innerHTML = list.map(c => 
+    '<div class="prod-row">' +
+      '<div class="prod-info">' +
+        '<div class="prod-name">' + esc(c.name) + '</div>' +
+        (c.phone ? '<div class="prod-price num" style="color:var(--muted)">' + esc(c.phone) + '</div>' : '') +
+      '</div>' +
+      '<div class="prod-actions">' +
+        '<button class="icon-btn danger" data-action="delete-customer" data-id="' + c.id + '">' + ICONS.trash + '</button>' +
+      '</div>' +
+    '</div>'
+  ).join('');
+}
+
+function addCustomer(){
+  const nameEl = $('#newCustomerName');
+  const phoneEl = $('#newCustomerPhone');
+  if(!nameEl) return;
+  const name = nameEl.value.trim();
+  if(!name){ toast('اسم الزبون مطلوب', 'err'); nameEl.focus(); return; }
+  
+  state.customers.push({ id: uid(), name: name, phone: phoneEl.value.trim() });
+  saveState();
+  nameEl.value = ''; phoneEl.value = '';
+  renderCustomersList();
+  toast('تمت إضافة الزبون', 'ok');
+}
+
+function deleteCustomer(id){
+  confirmDialog('حذف الزبون؟', 'سيتم حذف الزبون من القائمة، فواتيره لن تتأثر.', 'حذف', 'رجوع').then(ok => {
+    if(ok){
+      state.customers = state.customers.filter(c => c.id !== id);
+      saveState();
+      renderCustomersList();
+      toast('تم حذف الزبون', 'ok');
+    }
+  });
+}
+
+/* ==========================================================================
+   DEBTS SCREEN
+   ========================================================================== */
+function debtsHTML(){
+  return '' +
+  '<div class="shell">' +
+    '<header class="topbar">' +
+      '<button class="icon-btn" data-action="go-back" aria-label="رجوع">' + ICONS.back + '</button>' +
+      '<div class="topbar-title"><div class="tt-main">الديون</div><div class="tt-sub">حسابات الزبائن</div></div>' +
+      '<div style="width:42px"></div>' +
+    '</header>' +
+    '<div class="card" style="padding:12px">' +
+      '<div class="search-wrap">' + ICONS.search +
+        '<input id="debtsSearch" class="input search-input" type="text" placeholder="ابحث باسم الزبون..." autocomplete="off">' +
+      '</div>' +
+    '</div>' +
+    '<div id="debtsList"></div>' +
+  '</div>';
+}
+
+function renderDebtsList(){
+  const box = $('#debtsList');
+  if(!box) return;
+  
+  // تجميع الفواتير حسب الـ customerId
+  let debts = {};
+  state.invoices.forEach(inv => {
+    if(inv.customerId){
+      if(!debts[inv.customerId]) debts[inv.customerId] = { id: inv.customerId, name: inv.customer, lbp: 0, usd: 0, count: 0 };
+      debts[inv.customerId].lbp += inv.totalLBP;
+      debts[inv.customerId].usd += inv.totalUSD;
+      debts[inv.customerId].count++;
+    }
+  });
+  
+  let list = Object.values(debts);
+  const q = (ui.debtsSearch || '').trim();
+  if(q) list = list.filter(d => d.name.indexOf(q) !== -1);
+  
+  if(!list.length){
+    box.innerHTML = '<div class="empty"><b>لا توجد ديون مسجلة</b><br>حسابات الزبائن نظيفة.</div>';
+    return;
+  }
+  
+  box.innerHTML = list.map(d => 
+    '<div class="hist-card" style="cursor:pointer" data-action="view-debt-details" data-id="' + d.id + '">' +
+      '<div class="hist-top">' +
+        '<span class="hist-num">👤 ' + esc(d.name) + '</span>' +
+        '<span class="hist-date">' + d.count + ' فواتير</span>' +
+      '</div>' +
+      '<div class="hist-totals">' +
+        '<span class="hist-lbp num" style="color:var(--danger)">' + moneyLBP(d.lbp) + '</span>' +
+        '<span class="hist-usd num" style="color:var(--danger)">' + moneyUSD(d.usd) + '</span>' +
+      '</div>' +
+      '<div style="text-align:left;color:var(--blue);font-size:13px;font-weight:700;margin-top:10px">عرض التفاصيل ←</div>' +
+    '</div>'
+  ).join('');
+}
+
+function viewDebtDetails(cid){
+  const customerInvoices = state.invoices.filter(inv => inv.customerId === cid).sort((a,b) => new Date(b.date) - new Date(a.date));
+  let totalLBP = 0; let totalUSD = 0;
+  customerInvoices.forEach(inv => { totalLBP+=inv.totalLBP; totalUSD+=inv.totalUSD; });
+  
+  const cname = customerInvoices.length > 0 ? customerInvoices[0].customer : '';
+  
+  let html = '<div class="modal-head"><h3>كشف حساب: ' + esc(cname) + '</h3>' +
+             '<button class="icon-btn" data-action="close-modal" aria-label="إغلاق">' + ICONS.close + '</button></div>' +
+             '<div class="modal-body" style="max-height:65vh;overflow-y:auto;padding:16px 14px;background:#f8fafc">' +
+             
+             '<div style="background:linear-gradient(135deg,#fee2e2,#fecaca);color:#991b1b;padding:18px;border-radius:16px;margin-bottom:16px;box-shadow:0 4px 12px rgba(220,38,38,0.1);text-align:center">' +
+               '<div style="font-size:13.5px;font-weight:800;opacity:0.9;margin-bottom:4px">إجمالي الدين المتبقي</div>' +
+               '<div class="num" style="font-size:26px;font-weight:800;line-height:1.2;margin-bottom:2px">' + moneyLBP(totalLBP) + '</div>' +
+               '<div class="num" style="font-size:15px;font-weight:800;opacity:0.85">' + moneyUSD(totalUSD) + '</div>' +
+             '</div>' +
+             
+             '<div style="font-size:13.5px;font-weight:800;color:var(--ink-2);margin-bottom:10px;padding-right:4px">الفواتير المسجلة (' + customerInvoices.length + '):</div>';
+             
+  html += customerInvoices.map(inv => 
+    '<div class="prod-row" style="cursor:pointer;padding:14px;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 2px 4px rgba(15,23,42,0.02);background:#fff;transition:transform 0.1s" data-action="view-invoice" data-id="' + inv.id + '" onmousedown="this.style.transform=\'scale(0.98)\'" onmouseup="this.style.transform=\'none\'" onmouseleave="this.style.transform=\'none\'" ontouchstart="this.style.transform=\'scale(0.98)\'" ontouchend="this.style.transform=\'none\'">' +
+      '<div class="prod-info">' +
+        '<div class="prod-name" style="font-size:16px;font-weight:800;color:var(--blue)">فاتورة #' + inv.number + '</div>' +
+        '<div class="prod-price num" style="color:var(--muted);font-size:12.5px;margin-top:4px">' + fmtDate(inv.date) + ' · ' + fmtTime(inv.date) + '</div>' +
+      '</div>' +
+      '<div style="text-align:left">' +
+        '<div class="num" style="font-size:15.5px;font-weight:800;color:var(--danger)">' + moneyLBP(inv.totalLBP) + '</div>' +
+        '<div class="num" style="font-size:12.5px;font-weight:700;color:var(--muted-2);margin-top:2px">' + moneyUSD(inv.totalUSD) + '</div>' +
+      '</div>' +
+      '<div style="margin-right:8px;color:#cbd5e1">' + ICONS.chevron + '</div>' +
+    '</div>'
+  ).join('');
+  
+  html += '</div>' + 
+          '<div style="padding:16px 14px; background:#fff; border-top:1px solid var(--line);">' +
+            '<div style="font-size:13.5px;font-weight:800;color:var(--ink-2);margin-bottom:10px;">تسجيل دفعة جديدة:</div>' +
+            '<div class="row" style="margin-top:0;">' +
+              '<div><input id="payLBP" class="input num" type="number" inputmode="decimal" placeholder="المبلغ (ل.ل)"></div>' +
+              '<div><input id="payUSD" class="input num" type="number" inputmode="decimal" placeholder="المبلغ ($)"></div>' +
+            '</div>' +
+            '<div class="row">' +
+              '<button class="btn btn-primary" data-action="submit-payment" data-cid="' + cid + '" data-cname="' + esc(cname) + '" style="flex:1;">تأكيد الدفعة</button>' +
+            '</div>' +
+          '</div>';
+  showModal(html, 'wide');
+}
+
+const actions = {
+
+  /* --- navigation --- */
+  'go': function(el){ go(el.dataset.screen); },
+  'go-back': function(){ goBack(); },
+  'modal-backdrop': function(){ 
+    if(confirmResolve){ resolveConfirm(false); return; }
+    closeModal();
+  },
+  'close-modal': function(){ closeModal(); },
+
+  /* --- confirm dialog --- */
+  'confirm-yes': function(){ resolveConfirm(true); },
+  'confirm-no': function(){ resolveConfirm(false); },
+
+  /* --- home --- */
+  'new-invoice': function(){ newInvoiceFlow(); },
+
+  'submit-payment': function(el){
+    const cid = el.dataset.cid;
+    const cname = el.dataset.cname;
+    const payLBP = parseNum($('#payLBP').value) || 0;
+    const payUSD = parseNum($('#payUSD').value) || 0;
+    const rate = state.settings.rate;
+
+    if(payLBP <= 0 && payUSD <= 0) {
+      toast('أدخل مبلغ الدفعة أولاً', 'err');
+      return;
+    }
+
+    const totalPaidLBP = payLBP + (payUSD * rate);
+    const totalPaidUSD = r2(totalPaidLBP / rate);
+
+    const receipt = {
+      id: uid(),
+      number: state.counter + 1,
+      date: new Date().toISOString(),
+      customer: cname,
+      customerId: cid,
+      items: [{ productId: 'pay', name: 'دفعة من الحساب', qty: 1, price: -totalPaidLBP, total: -totalPaidLBP }],
+      totalLBP: -totalPaidLBP,
+      rate: rate,
+      totalUSD: -totalPaidUSD,
+      updatedAt: null
+    };
+
+    state.invoices.push(receipt);
+    state.counter++;
+    saveState();
+    
+    toast('تم تسجيل الدفعة بنجاح', 'ok');
+    // تحديث الشاشات
+    renderDebtsList(); 
+    viewDebtDetails(cid);
+  },
+
+  /* --- invoice --- */
+  'show-all-products': function(){
+    // إجبار المتصفح على إغلاق الكيبورد بسحب التركيز من مربع البحث
+    const activeInp = document.activeElement;
+    if(activeInp && activeInp.tagName === 'INPUT') activeInp.blur();
+
+    const box = $('#searchResults');
+    if(!box) return;
+    let list = state.products.slice();
+    list.sort((a,b) => a.name.localeCompare(b.name, 'ar'));
+    if(!list.length){
+      box.innerHTML = '<div style="padding:14px;text-align:center;color:#94a3b8;font-size:14px">لا توجد أصناف محفوظة</div>';
+    } else {
+      box.innerHTML = list.map(p =>
+        '<button class="search-item" data-action="add-from-search" data-id="' + p.id + '">' +
+          '<span class="si-name">' + esc(p.name) + '</span>' +
+          '<span class="si-price num">' + fmtLBP(p.price) + ' ل.ل</span>' +
+        '</button>'
+      ).join('');
+    }
+    box.classList.add('open');
+  },
+
+  'quick-add-item': function(){ addBlankItem(); },
+
+  'calc-change': function(){
+    if(!draft) return;
+    const givenInp = $('#givenUSD');
+    const returnInp = $('#returnUSD');
+    if(!givenInp) return;
+
+    const given = parseNum(givenInp.value);
+    const retUSD = parseNum(returnInp.value) || 0;
+    const bill = draft.totalUSD;
+    const rate = draft.rate;
+
+    if(isNaN(given) || given <= 0) {
+      toast('أدخل المبلغ المستلم أولاً', 'err');
+      return;
+    }
+
+    // حالة: المبلغ المستلم أقل من قيمة الفاتورة
+    if(given < bill) {
+      const remainingUSD = bill - given;
+      const remainingLBP = remainingUSD * rate;
+      toast('باقي عليه ' + fmtLBP(remainingLBP), 'err', 4000);
+      return;
+    }
+
+    const totalChangeUSD = given - bill;
+
+    // حالة: إدخال مبلغ ترجيع بالدولار
+    if(returnInp.value !== '' && retUSD >= 0) {
+      if(retUSD > totalChangeUSD) {
+        toast('المبلغ المرجع بالدولار أكبر من الباقي الفعلي!', 'err');
+        return;
+      }
+      const remLBP = (totalChangeUSD - retUSD) * rate;
+      toast('رجعله ' + fmtLBP(remLBP), 'ok', 3500);
+    } 
+    // حالة: ترك خانة الترجيع بالدولار فارغة
+    else {
+      const allLBP = totalChangeUSD * rate;
+      const integerUSD = Math.floor(totalChangeUSD);
+      const fractionLBP = (totalChangeUSD - integerUSD) * rate;
+
+      if(integerUSD === 0) {
+         toast('رجعله ' + fmtLBP(allLBP), 'ok', 3500);
+      } else {
+         toast('رجعله ' + fmtLBP(allLBP) + '\nأو ' + integerUSD + ' دولار و ' + fmtLBP(fractionLBP), 'ok', 4500);
+      }
+    }
+  },
+
+  'add-from-search': function(el){
+    const p = state.products.find(x => x.id === el.dataset.id);
+    if(!p) return;
+    addItem(p.name, p.price, p.id);
+    // تم إزالة أمر الإغلاق لتبقى القائمة مفتوحة
+    // وتم إزالة أمر الفوكس لمنع ظهور الكيبورد المزعج
+  },
+
+  'add-new-from-search': function(el){
+    const name = el.dataset.name || '';
+    draft.items.push({ productId: null, name: name, qty: 1, price: 0, total: 0 });
+    recalc(); renderItems(); updateTotalBar();
+    closeSearch();
+    const rows = $$('#itemsList .item-row');
+    const last = rows[rows.length - 1];
+    if(last){
+      const priceInp = last.querySelector('.price-input');
+      if(priceInp){
+        priceInp.focus();
+        priceInp.select();
+        last.scrollIntoView({ behavior:'smooth', block:'center' });
+      }
+    }
+    toast('أدخل سعر الوحدة للصنف الجديد', '', 2200);
+  },
+
+  'edit-line-total': function(el){
+    const idx = +el.dataset.idx;
+    if(!draft || !draft.items[idx]) return;
+    const it = draft.items[idx];
+    const p = Number(it.price) || 0;
+    if(p <= 0){ toast('يجب تحديد سعر الوحدة أولاً', 'err'); return; }
+    const html = '<div class="modal-head"><h3>حساب الكمية حسب المبلغ</h3><button class="icon-btn" data-action="close-modal">' + ICONS.close + '</button></div>' +
+                 '<div class="modal-body">' +
+                 '<label class="field-label">أدخل المبلغ المطلوب (ل.ل)</label>' +
+                 '<input id="calcTotalInput" class="input num" type="number" inputmode="decimal" value="' + (it.total || '') + '">' +
+                 '<div class="hint">سيتم تعديل الكمية تلقائياً بناءً على سعر الوحدة (' + fmtLBP(p) + ' ل.ل).</div>' +
+                 '</div>' +
+                 '<div class="modal-actions">' +
+                 '<button class="btn btn-primary" data-action="apply-line-total" data-idx="' + idx + '">تطبيق</button>' +
+                 '<button class="btn btn-ghost" data-action="close-modal">إلغاء</button>' +
+                 '</div>';
+    showModal(html, 'sm');
+    setTimeout(() => { const inp = $('#calcTotalInput'); if(inp){ inp.focus(); inp.select(); } }, 50);
+  },
+  
+  'apply-line-total': function(el){
+    const idx = +el.dataset.idx;
+    if(!draft || !draft.items[idx]) return;
+    const it = draft.items[idx];
+    const inp = $('#calcTotalInput');
+    if(!inp) return;
+    const target = parseNum(inp.value);
+    if(!isFinite(target) || target < 0){ toast('مبلغ غير صالح', 'err'); return; }
+    const p = Number(it.price) || 0;
+    if(p > 0){
+      let q = target / p;
+      q = Math.round((q + Number.EPSILON) * 1000) / 1000;
+      it.qty = q;
+      const qtyInput = $('.qty-input[data-idx="' + idx + '"]');
+      if(qtyInput) qtyInput.value = it.qty;
+    }
+    recalc(); updateLineTotals(); updateTotalBar();
+    closeModal();
+  },
+
+  'del-item': function(el){
+    const idx = +el.dataset.idx;
+    if(!draft || !draft.items[idx]) return;
+    const it = draft.items[idx];
+    const doDelete = function(){
+      draft.items.splice(idx, 1);
+      recalc(); renderItems(); updateTotalBar();
+      toast('تم حذف الصنف', '', 1500);
+    };
+    if(String(it.name || '').trim() || Number(it.price) > 0){
+      confirmDialog('حذف الصنف؟', 'سيتم حذف «' + (it.name || 'صنف') + '» من الفاتورة.', 'حذف', 'رجوع')
+        .then(ok => { if(ok) doDelete(); });
+    } else {
+      doDelete();
+    }
+  },
+
+  'qty-plus': function(el){
+    const idx = +el.dataset.idx;
+    if(!draft || !draft.items[idx]) return;
+    const it = draft.items[idx];
+    it.qty = Math.max(0, (Number(it.qty) || 0) + 1);
+    const input = $('.qty-input[data-idx="' + idx + '"]');
+    if(input) input.value = it.qty;
+    recalc(); updateLineTotals(); updateTotalBar();
+  },
+
+  'qty-minus': function(el){
+    const idx = +el.dataset.idx;
+    if(!draft || !draft.items[idx]) return;
+    const it = draft.items[idx];
+    it.qty = Math.max(1, (Number(it.qty) || 1) - 1);
+    const input = $('.qty-input[data-idx="' + idx + '"]');
+    if(input) input.value = it.qty;
+    recalc(); updateLineTotals(); updateTotalBar();
+  },
+
+    'save-to-products': function(el){
+    const idx = +el.dataset.idx;
+    if(!draft || !draft.items[idx]) return;
+    const it = draft.items[idx];
+    const name = String(it.name || '').trim();
+    const price = Number(it.price) || 0;
+    if(!name){ toast('أدخل اسم الصنف أولاً', 'err'); return; }
+    if(!(price > 0)){ toast('أدخل سعراً أكبر من صفر أولاً', 'err'); return; }
+
+    const existing = state.products.find(p => p.name === name);
+    let pid;
+    if(existing){
+      pid = existing.id;
+    } else {
+      pid = uid();
+      state.products.push({ id: pid, name: name, price: price, category: '' });
+    }
+    it.productId = pid;
+    it._saved = true;
+    saveState();
+
+    const row = el.closest('.item-row');
+    if(row){
+      const chip = document.createElement('span');
+      chip.className = 'saved-chip';
+      chip.textContent = '✓ محفوظ في الأصناف';
+      row.replaceChild(chip, el);
+    }
+    toast('تم حفظ الصنف في القائمة', 'ok');
+
+    // الصعود إلى أعلى الشاشة وتركيز الكيبورد في حقل البحث فوراً
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const searchInp = $('#productSearch');
+    if(searchInp){
+      setTimeout(() => {
+        searchInp.focus();
+        closeSearch();
+      }, 200);
+    }
+  },
+
+  'save-invoice': function(){ openSaveOptions(); },
+  'execute-save': function(el){ executeSave(el); },
+  'add-customer': function(){ addCustomer(); },
+  'delete-customer': function(el){ deleteCustomer(el.dataset.id); },
+  'view-debt-details': function(el){ viewDebtDetails(el.dataset.id); },
+  'preview-invoice': function(){
+    if(!draft) return;
+    const err = validateDraft();
+    if(err && draft.items.length === 0){ toast(err, 'err'); return; }
+    recalc();
+    const inv = buildInvoiceFromDraft();
+    openPreview(inv, true);
+  },
+  'cancel-invoice': function(){ cancelInvoice(); },
+
+  /* --- preview modal --- */
+  'download-preview': function(){ downloadPreview(); },
+  'share-preview': function(){ sharePreview(); },
+  'print-preview': function(){ printPreview(); },
+
+  /* --- history --- */
+  'view-invoice': function(el){
+    const inv = state.invoices.find(x => x.id === el.dataset.id);
+    if(!inv) return;
+    openPreview(inv, false);
+  },
+  'edit-invoice': function(el){
+    const inv = state.invoices.find(x => x.id === el.dataset.id);
+    if(!inv) return;
+    if(draft && draft.items.length){
+      confirmDialog('تعديل فاتورة أخرى؟', 'لديك فاتورة غير محفوظة. سيتم فقدان بياناتها.', 'متابعة', 'رجوع')
+        .then(ok => { if(ok) loadInvoiceIntoDraft(inv); });
+    } else {
+      loadInvoiceIntoDraft(inv);
+    }
+  },
+  'share-invoice': function(el){
+    const inv = state.invoices.find(x => x.id === el.dataset.id);
+    if(!inv) return;
+    buildInvoiceCanvas(inv).then(cv => {
+      previewState = { inv: inv, canvas: cv, dataUrl: cv.toDataURL('image/png'), isDraft: false };
+      sharePreview();
+      previewState = null;
+    }).catch(() => toast('تعذّر إنشاء صورة الفاتورة', 'err'));
+  },
+  'delete-invoice': function(el){
+    const inv = state.invoices.find(x => x.id === el.dataset.id);
+    if(!inv) return;
+    confirmDialog('حذف الفاتورة #' + inv.number + '؟', 'سيتم حذفها نهائياً من السجل.', 'حذف نهائي', 'رجوع')
+      .then(ok => {
+        if(!ok) return;
+        state.invoices = state.invoices.filter(x => x.id !== inv.id);
+        saveState();
+        renderHistoryList();
+        toast('تم حذف الفاتورة', 'ok');
+      });
+  },
+  'clear-hist-filters': function(){
+    ui.histSearch = ''; ui.histFrom = ''; ui.histTo = '';
+    render();
+  },
+
+  /* --- products --- */
+  'add-product-form': function(){ addProductFromForm(); },
+  'edit-product': function(el){ openProductEditModal(el.dataset.id); },
+  'save-product-edit': function(el){ saveProductEdit(el.dataset.id); },
+  'delete-product': function(el){ deleteProduct(el.dataset.id); },
+
+  /* --- settings --- */
+  'save-settings': function(){ saveSettings(); },
+  'pick-logo': function(){ pickLogo(); },
+  'remove-logo': function(){
+    state.settings.logo = '';
+    saveState();
+    render();
+    toast('تمت إزالة الشعار', 'ok');
+  },
+  'export-backup': function(){ exportBackup(); },
+  'import-backup': function(){
+    const input = $('#backupInput');
+    if(input) input.click();
+  },
+  'export-csv': function(){ exportCSV(); },
+  'clear-data': function(){ clearAllData(); }
+};
+
+function loadInvoiceIntoDraft(inv){
+  draft = {
+    id: inv.id,
+    editingId: inv.id,
+    number: inv.number,
+    date: inv.date,
+    customer: inv.customer || '',
+    items: inv.items.map(it => ({
+      productId: it.productId || null,
+      name: it.name,
+      qty: it.qty,
+      price: it.price,
+      total: it.total
+    })),
+    rate: inv.rate,
+    totalLBP: inv.totalLBP,
+    totalUSD: inv.totalUSD
+  };
+  recalc();
+  go('invoice');
+}
+
+/* ---- Global click delegation ---- */
+document.addEventListener('click', function(e){
+  // إغلاق قائمة البحث عند النقر خارجها (تعمل الآن بشكل سليم حتى لو نقرت بمساحة فارغة)
+  if(!e.target.closest('.search-card')){
+    const box = $('#searchResults');
+    if(box && box.classList.contains('open')){
+      box.classList.remove('open');
+    }
+  }
+
+  const el = e.target.closest('[data-action]');
+  if(!el) return;
+  const action = el.dataset.action;
+  if(!action) return;
+
+  const fn = actions[action];
+  if(fn){
+    e.preventDefault();
+    try { fn(el, e); }
+    catch(err){ console.error('action error', action, err); toast('حدث خطأ غير متوقع', 'err'); }
+  }
+});
+
+/* ---- Global input delegation ---- */
+document.addEventListener('input', function(e){
+  const el = e.target;
+  if(!el) return;
+
+  if(el.id === 'productSearch'){ onProductSearch(el); return; }
+  if(el.id === 'productsSearch'){ ui.productsSearch = el.value; renderProductsList(); return; }
+  if(el.id === 'histSearch'){ ui.histSearch = el.value; renderHistoryList(); return; }
+  if(el.id === 'histFrom'){ ui.histFrom = el.value; renderHistoryList(); return; }
+  if(el.id === 'histTo'){ ui.histTo = el.value; renderHistoryList(); return; }
+  if(el.id === 'setRate'){ updateRatePreview(); return; }
+  if(el.id === 'customerInput'){ if(draft) draft.customer = el.value; return; }
+  
+  if(el.id === 'modalCustomerSearch'){ renderModalCustomers(el.value.trim()); return; }
+  if(el.id === 'customersSearch'){ ui.customersSearch = el.value.trim(); renderCustomersList(); return; }
+  if(el.id === 'debtsSearch'){ ui.debtsSearch = el.value.trim(); renderDebtsList(); return; }
+
+  if(el.dataset && el.dataset.field && el.dataset.idx != null && draft){
+    const idx = +el.dataset.idx;
+    const field = el.dataset.field;
+    const it = draft.items[idx];
+    if(!it) return;
+
+    if(field === 'name'){
+      it.name = el.value;
+    } else if(field === 'qty'){
+      const v = parseNum(el.value);
+      it.qty = (el.value === '' || !isFinite(v)) ? '' : v;
+    } else if(field === 'price'){
+      const v = parseNum(el.value);
+      it.price = (el.value === '' || !isFinite(v)) ? '' : v;
+    }
+    recalc();
+    updateLineTotals();
+    updateTotalBar();
+  }
+});
+
+/* ---- Normalize numeric inputs on blur ---- */
+document.addEventListener('focusout', function(e){
+  const el = e.target;
+  if(!el || !el.dataset || !el.dataset.field || el.dataset.idx == null || !draft) return;
+  const idx = +el.dataset.idx;
+  const it = draft.items[idx];
+  if(!it) return;
+
+  if(el.dataset.field === 'qty'){
+    let v = parseNum(el.value);
+    if(!isFinite(v) || v <= 0) v = 1;
+    it.qty = v;
+    el.value = v;
+    recalc(); updateLineTotals(); updateTotalBar();
+  }
+  if(el.dataset.field === 'price'){
+    let v = parseNum(el.value);
+    if(!isFinite(v) || v < 0) v = 0;
+    it.price = v;
+    el.value = v;
+    recalc(); updateLineTotals(); updateTotalBar();
+  }
+});
+
+/* ---- Keyboard shortcuts (desktop) ---- */
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    if($('#modalRoot').classList.contains('open')){
+      if(confirmResolve) resolveConfirm(false); else closeModal();
+      return;
+    }
+    const box = $('#searchResults');
+    if(box && box.classList.contains('open')){ closeSearch(); return; }
+  }
+  if((e.ctrlKey || e.metaKey) && e.key === 'Enter' && screen === 'invoice'){
+    e.preventDefault();
+    saveInvoice();
+  }
+});
+
+/* ---- File inputs ---- */
+document.addEventListener('change', function(e){
+  const el = e.target;
+  if(!el) return;
+  if(el.id === 'logoInput' && el.files && el.files[0]){ handleLogoFile(el.files[0]); el.value = ''; }
+  if(el.id === 'backupInput' && el.files && el.files[0]){ importBackupFile(el.files[0]); el.value = ''; }
+  if(el.id === 'newProductPrice' || el.id === 'newProductName'){
+    // no-op
+  }
+});
+
+/* Enter key in the new-product form */
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && e.target && (e.target.id === 'newProductName' || e.target.id === 'newProductPrice')){
+    e.preventDefault();
+    addProductFromForm();
+  }
+});
+
+/* ==========================================================================
+   15. PWA MANIFEST & ICON
+   ========================================================================== */
+function makeAppIcon(size){
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = size;
+  const c = cv.getContext('2d');
+  const r = size * 0.22;
+
+  // الخلفية
+  const grd = c.createLinearGradient(0, 0, size, size);
+  grd.addColorStop(0, '#2b5cf0');
+  grd.addColorStop(1, '#1a3fc4');
+  rrect(c, 0, 0, size, size, r);
+  c.fillStyle = grd;
+  c.fill();
+
+  // فاتورة بيضاء
+  const w = size * 0.42, h = size * 0.52;
+  const x = (size - w) / 2, y = (size - h) / 2;
+  c.fillStyle = '#ffffff';
+  rrect(c, x, y, w, h, size * 0.05);
+  c.fill();
+
+  // أسطر
+  c.fillStyle = '#1d4ed8';
+  const lw = w * 0.62, lx = x + (w - lw) / 2;
+  const lh = Math.max(2, size * 0.028);
+  [0.24, 0.40, 0.56].forEach(function(p){
+    c.fillRect(lx, y + h * p, lw, lh);
+  });
+  // خط الإجمالي
+  c.fillRect(lx, y + h * 0.75, lw * 0.7, lh * 1.4);
+
+  return cv.toDataURL('image/png');
+}
+
+function setupPWA(){
+  try {
+    const icon192 = makeAppIcon(192);
+    const icon512 = makeAppIcon(512);
+    const manifest = {
+      name: 'نظام الفواتير والمبيعات',
+      short_name: 'الفواتير',
+      description: 'نظام نقاط البيع والفواتير لمحل مستلزمات المطاعم',
+      start_url: '.',
+      scope: '.',
+      display: 'standalone',
+      orientation: 'portrait',
+      background_color: '#ffffff',
+      theme_color: '#1d4ed8',
+      lang: 'ar',
+      dir: 'rtl',
+      icons: [
+        { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+        { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+      ]
+    };
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifest));
+    document.head.appendChild(link);
+
+    const apple = document.createElement('link');
+    apple.rel = 'apple-touch-icon';
+    apple.href = icon192;
+    document.head.appendChild(apple);
+  } catch(e){ /* تجاهل */ }
+}
+
+/* ==========================================================================
+   16. INIT
+   ========================================================================== */
+function init(){
+  setupPWA();
+
+  // انتظار تحميل قاعدة البيانات قبل رسم الواجهة
+  initDB().then(() => {
+    // استعادة المسار من الـ hash إن وُجد
+    const hash = (location.hash || '').replace('#','');
+    const valid = ['home','invoice','history','products','settings','customers','debts'];
+    let startScreen = 'home';
+    if(valid.indexOf(hash) !== -1) startScreen = hash;
+    if(startScreen === 'invoice' && !draft) startScreen = 'home';
+    screen = startScreen;
+
+    try { history.replaceState({ screen: screen }, '', '#' + screen); } catch(e){}
+
+    render();
+
+    // في حال كانت الصفحة مفتوحة على شاشة الإعدادات، حدّث المعاينة
+    if(screen === 'settings') updateRatePreview();
+
+    window.addEventListener('online', () => toast('عاد الاتصال بالإنترنت', 'ok', 1800));
+    window.addEventListener('offline', () => toast('أنت غير متصل — التطبيق يعمل محلياً', '', 2400));
+  });
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+})();
+</script>
+</body>
+</html>
